@@ -9,7 +9,6 @@ import jester
 
 const
   doctype = "<!DOCTYPE html>\n"
-  lp = readFile("public/lp.svg")
 
 proc toTheme(theme: string): string =
   theme.toLowerAscii.replace(" ", "_")
@@ -32,7 +31,6 @@ proc renderNavbar(cfg: Config; req: Request; rss, canonical: string): VNode =
         if rss.len > 0:
           icon "rss", title="RSS Feed", href=rss
         icon "bird", title="Open in X", href=canonical
-        a(href="https://liberapay.com/zedeus"): verbatim lp
         icon "info", title="About", href="/about"
         icon "cog", title="Preferences", href=("/settings?referer=" & encodeUrl(path))
 

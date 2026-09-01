@@ -1,13 +1,8 @@
 # Nitter
 
-[![Test Matrix](https://github.com/zedeus/nitter/workflows/Tests/badge.svg)](https://github.com/zedeus/nitter/actions/workflows/run-tests.yml)
+<!--[![Test Matrix](https://github.com/zedeus/nitter/workflows/Tests/badge.svg)](https://github.com/zedeus/nitter/actions/workflows/run-tests.yml)
 [![Test Matrix](https://github.com/zedeus/nitter/workflows/Docker/badge.svg)](https://github.com/zedeus/nitter/actions/workflows/build-docker.yml)
-[![License](https://img.shields.io/github/license/zedeus/nitter?style=flat)](#license)
-
-> [!NOTE]
-> Running a Nitter instance now requires real accounts, since Twitter removed the previous methods. \
-> This does not affect users. \
-> For instructions on how to obtain session tokens, see [Creating session tokens](https://github.com/zedeus/nitter/wiki/Creating-session-tokens).
+[![License](https://img.shields.io/github/license/zedeus/nitter?style=flat)](#license) -->
 
 A free and open source alternative Twitter front-end focused on privacy and
 performance. \
@@ -21,18 +16,11 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
 - RSS feeds
 - Themes
 - Mobile support (responsive design)
-- AGPLv3 licensed, no proprietary instances permitted
 
-<details>
-<summary>Donations</summary>
-Liberapay: https://liberapay.com/zedeus<br>
-Patreon: https://patreon.com/nitter<br>
-BTC: bc1qpqpzjkcpgluhzf7x9yqe7jfe8gpfm5v08mdr55<br>
-ETH: 0x24a0DB59A923B588c7A5EBd0dBDFDD1bCe9c4460<br>
-XMR: 42hKayRoEAw4D6G6t8mQHPJHQcXqofjFuVfavqKeNMNUZfeJLJAcNU19i1bGdDvcdN6romiSscWGWJCczFLe9RFhM3d1zpL<br>
-SOL: ANsyGNXFo6osuFwr1YnUqif2RdoYRhc27WdyQNmmETSW<br>
-ZEC: u1vndfqtzyy6qkzhkapxelel7ams38wmfeccu3fdpy2wkuc4erxyjm8ncjhnyg747x6t0kf0faqhh2hxyplgaum08d2wnj4n7cyu9s6zhxkqw2aef4hgd4s6vh5hpqvfken98rg80kgtgn64ff70djy7s8f839z00hwhuzlcggvefhdlyszkvwy3c7yw623vw3rvar6q6evd3xcvveypt
-</details>
+> [!NOTE]
+> Running a Nitter instance now requires real accounts, since Twitter removed the previous methods. \
+> This does not affect users. \
+> For instructions on how to obtain session tokens, see [Creating session tokens](https://codeberg.org/mv12star/shitter/wiki/Creating-session-tokens).
 
 ## Roadmap
 
@@ -44,8 +32,8 @@ ZEC: u1vndfqtzyy6qkzhkapxelel7ams38wmfeccu3fdpy2wkuc4erxyjm8ncjhnyg747x6t0kf0faq
 ## Resources
 
 The wiki contains
-[a list of instances](https://github.com/zedeus/nitter/wiki/Instances) and
-[browser extensions](https://github.com/zedeus/nitter/wiki/Extensions)
+[a list of instances](https://codeberg.org/mv12star/shitter/wiki/Instances) and
+[browser extensions](https://codeberg.org/mv12star/shitter/wiki/Extensions)
 maintained by the community.
 
 ## Why?
@@ -102,7 +90,7 @@ along with the scss and md files.
 ```bash
 # useradd -m nitter
 # su nitter
-$ git clone https://github.com/zedeus/nitter
+$ git clone https://codeberg.org/mv12star/shitter
 $ cd nitter
 $ nimble -l build -d:danger --mm:refc
 $ nimble -l scss
@@ -115,8 +103,8 @@ Redis info in `nitter.conf`. To run Redis, either run
 `redis-server --daemonize yes`, or `systemctl enable --now redis` (or
 redis-server depending on the distro). Run Nitter by executing `./nitter` or
 using the systemd service below. You should run Nitter behind a reverse proxy
-such as [Nginx](https://github.com/zedeus/nitter/wiki/Nginx) or
-[Apache](https://github.com/zedeus/nitter/wiki/Apache) for security and
+such as [Nginx](https://codeberg.org/mv12star/shitter/wiki/Nginx) or
+[Apache](https://codeberg.org/mv12star/shitter/wiki/Apache) for security and
 performance reasons.
 
 ### Docker
@@ -137,7 +125,7 @@ cp nitter.example.conf nitter.conf
 ```
 
 If you're using the prebuilt image without a local clone, download
-[`nitter.example.conf`](https://raw.githubusercontent.com/zedeus/nitter/master/nitter.example.conf)
+[`nitter.example.conf`](https://codeberg.org/mv12star/shitter/src/branch/master/nitter.example.conf)
 and save it as `nitter.conf` instead.
 
 To build and run Nitter in Docker:
@@ -205,7 +193,6 @@ this: `journalctl -u nitter.service` (add `--follow` to see just the last 15
 lines). If you're running the Docker image, you can do this:
 `docker logs --follow *nitter container id*`
 
-## Contact
+## Matrix channel
 
 Feel free to join our [Matrix channel](https://matrix.to/#/#nitter:matrix.org).
-You can email me at zedeus@pm.me if you wish to contact me personally.
