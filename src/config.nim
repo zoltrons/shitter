@@ -23,7 +23,7 @@ proc getConfig*(path: string): (Config, parseCfg.Config) =
     httpMaxConns: cfg.get("Server", "httpMaxConnections", 100),
     staticDir: cfg.get("Server", "staticDir", "./public"),
     title: cfg.get("Server", "title", "Nitter"),
-    hostname: cfg.get("Server", "hostname", "nitter.net"),
+    hostname: cfg.get("Server", "hostname", "shitter.thepixora.com"),
 
     # Cache
     listCacheTime: cfg.get("Cache", "listMinutes", 120),

@@ -107,7 +107,7 @@ routes:
 
   error InternalError:
     echo error.exc.name, ": ", error.exc.msg
-    const link = a("open a GitHub issue", href = issuesUrl)
+    const link = a("open an issue", href = issuesUrl)
     resp Http500, showError(
       &"An error occurred, please {link} with the URL you tried to visit.", cfg)
 

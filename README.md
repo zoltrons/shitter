@@ -12,7 +12,7 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
 - All requests go through the backend, client never talks to Twitter
 - Prevents Twitter from tracking your IP or JavaScript fingerprint
 - Uses Twitter's unofficial API (no developer account required)
-- Lightweight (for [@nim_lang](https://nitter.net/nim_lang), 60KB vs 784KB from twitter.com)
+- Lightweight (for [@nim_lang](https://shitter.thepixora.com/nim_lang), 60KB vs 784KB from twitter.com)
 - RSS feeds
 - Themes
 - Mobile support (responsive design)

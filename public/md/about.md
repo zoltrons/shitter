@@ -1,7 +1,7 @@
 # About
 
 Nitter is a free and open source alternative Twitter front-end focused on
-privacy and performance. The source is available on GitHub at
+privacy and performance. The source is available at
 <https://codeberg.org/mv12star/shitter>
 
 - No JavaScript or ads
@@ -13,7 +13,7 @@ privacy and performance. The source is available on GitHub at
 - Themes
 - Mobile support (responsive design)
 
-Nitter's GitHub wiki contains
+Nitter's wiki contains
 [instances](https://codeberg.org/mv12star/shitter/wiki/Instances) and
 [browser extensions](https://codeberg.org/mv12star/shitter/wiki/Extensions)
 maintained by the community.
