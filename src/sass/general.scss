@@ -1,6 +1,10 @@
 @import "_variables";
 @import "_mixins";
 
+:root {
+  --search-icon: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAtOTYwIDk2MCA5NjAiIHdpZHRoPSIyNHB4IiBmaWxsPSIjZTNlM2UzIj48cGF0aCBkPSJNNzg0LTEyMCA1MzItMzcycS0zMCAyNC02OSAzOHQtODMgMTRxLTEwOSAwLTE4NC41LTc1LjVUMTIwLTU4MHEwLTEwOSA3NS41LTE4NC41VDM4MC04NDBxMTA5IDAgMTg0LjUgNzUuNVQ2NDAtNTgwcTAgNDQtMTQgODN0LTM4IDY5bDI1MiAyNTItNTYgNTZaTTM4MC00MDBxNzUgMCAxMjcuNS01Mi41VDU2MC01ODBxMC03NS01Mi41LTEyNy41VDM4MC03NjBxLTc1IDAtMTI3LjUgNTIuNVQyMDAtNTgwcTAgNzUgNTIuNSAxMjcuNVQzODAtNDAwWiIvPjwvc3ZnPg==');
+}
+
 .panel-container {
   margin: auto;
   font-size: 130%;
@@ -9,6 +13,52 @@
 .error-panel {
   @include center-panel(var(--error_red));
   text-align: center;
+}
+
+.search-bar-nav > form:has(:focus) {
+  border-bottom: solid 2px var(--accent);
+  padding-bottom: 0;
+}
+
+.search-bar-nav > form {
+  padding-bottom: calc(.5em - 2px);
+  border-bottom: solid 1px var(--accent);
+  border-radius: 0;
+  padding: 0;
+  padding-bottom: 1px;
+  display: flex;
+
+  button {
+    background: transparent;
+    color: var(--fg_color);
+    border: 0;
+    cursor: pointer;
+    font-weight: bold;
+    background: center no-repeat var(--search-icon);
+    flex-grow: 1;
+    background-size: 100%;
+    height: auto;
+    padding: 0;
+    width: 19px
+  }
+
+  button:focus-visible {
+    outline: auto;
+  }
+
+  button:hover {
+    backdrop-filter: brightness(2);
+  }
+
+  input {
+    font-size: 15px;
+    width: 100%;
+    background: transparent;
+    color: var(--fg_color);
+    border: 0;
+    margin-right: 8px;
+    height: unset;
+  }
 }
 
 .search-bar > form {

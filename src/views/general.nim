@@ -24,7 +24,15 @@ proc renderNavbar(cfg: Config; req: Request; rss, canonical: string): VNode =
       tdiv(class="nav-item"):
         a(class="site-name", href="/"): text cfg.title
 
-      a(href="/"): img(class="site-logo", src="/logo.png", alt="Logo")
+      if req.path == "/search" or req.path == "/":
+        a(href="/"): img(class="site-logo", src="/logo.png", alt="Logo")
+      else:
+        tdiv(class="search-bar-nav"):
+          form(`method`="get", action="/search", autocomplete="off"):
+            hiddenField("f", "tweets")
+            input(`type`="search", name="q", autofocus="",
+                  placeholder="Search [/]", dir="auto")
+            button(`type`="submit")
 
       tdiv(class="nav-item right"):
         icon "search", title="Search", href="/search"
@@ -75,6 +83,8 @@ proc renderHead*(prefs: Prefs; cfg: Config; req: Request; titleText=""; desc="";
     if prefs.hlsPlayback:
       script(src="/js/hls.min.js", `defer`="")
       script(src="/js/hlsPlayback.js?v=1", `defer`="")
+
+    script(src="/js/keybinds.js", `defer`="")
 
     if prefs.infiniteScroll:
       script(src="/js/infiniteScroll.js", `defer`="")
