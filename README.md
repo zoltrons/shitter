@@ -1,9 +1,5 @@
 # Nitter
 
-<!--[![Test Matrix](https://github.com/zedeus/nitter/workflows/Tests/badge.svg)](https://github.com/zedeus/nitter/actions/workflows/run-tests.yml)
-[![Test Matrix](https://github.com/zedeus/nitter/workflows/Docker/badge.svg)](https://github.com/zedeus/nitter/actions/workflows/build-docker.yml)
-[![License](https://img.shields.io/github/license/zedeus/nitter?style=flat)](#license) -->
-
 A free and open source alternative Twitter front-end focused on privacy and
 performance. \
 Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
@@ -109,9 +105,9 @@ performance reasons.
 
 ### Docker
 
-Page for the Docker image: https://hub.docker.com/r/zedeus/nitter
+Page for the Docker image: https://hub.docker.com/r/mv12star/shitter
 
-#### NOTE: The published image is multi-arch — `zedeus/nitter:latest` runs natively on both `amd64` and `arm64`.
+#### NOTE: The published image is multi-arch — `mv12star/shitter:latest` runs natively on `amd64`/`armv7`/`arm64`.
 
 To run Nitter with Docker, you'll need to install and run Redis separately
 before you can run the container. See below for how to also run Redis using
@@ -138,7 +134,7 @@ docker run -v $(pwd)/nitter.conf:/src/nitter.conf -d --network host nitter:lates
 A prebuilt Docker image is provided as well:
 
 ```bash
-docker run -v $(pwd)/nitter.conf:/src/nitter.conf -d --network host zedeus/nitter:latest
+docker run -v $(pwd)/nitter.conf:/src/nitter.conf -d --network host mv12star/shitter:latest
 ```
 
 Using docker-compose to run both Nitter and Redis as different containers:

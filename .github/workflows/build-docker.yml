@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  IMAGE: zedeus/nitter
+  IMAGE: mv12star/shitter
 
 jobs:
   tests:
@@ -75,7 +75,7 @@ jobs:
           retention-days: 1
 
   # Combine the per-arch digests into one multi-arch manifest so that
-  # `docker pull zedeus/nitter:latest` serves the right image on any CPU.
+  # `docker pull mv12star/shitter:latest` serves the right image on any CPU.
   merge:
     needs: [build]
     runs-on: ubuntu-24.04
