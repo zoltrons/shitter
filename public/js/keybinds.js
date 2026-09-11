@@ -7,5 +7,7 @@ document.addEventListener("keydown", function (e) {
     searchInput.focus();
     searchInput.select();
     e.preventDefault();
+  } else if (e.key == "Escape" && document.activeElement == searchInput) {
+    searchInput.blur();
   }
 });
