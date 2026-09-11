@@ -1,4 +1,4 @@
-# Nitter
+# Shitter - a Nitter fork
 
 A free and open source alternative Twitter front-end focused on privacy and
 performance. \
