@@ -5,7 +5,7 @@ import nimcrypto
 var
   hmacKey: string
   base64Media = false
-  proxyVideos = true
+  proxyVideos = false
 
 const
   https* = "https://"

@@ -94,7 +94,7 @@ genPrefs:
     hlsPlayback(checkbox, false):
       "Enable HLS video streaming (requires JavaScript)"
 
-    proxyVideos(checkbox, true):
+    proxyVideos(checkbox, false):
       "Proxy media streaming through the server (might be slow)"
 
     muteVideos(checkbox, false):
