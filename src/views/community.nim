@@ -39,7 +39,7 @@ proc renderHashtagHeader*(community: Community; tag: string): VNode =
   buildHtml(tdiv(class="community-hashtag-header")):
     h2(class="community-hashtag-title"): text "#" & tag
 
-proc renderCommunityAbout*(community: Community; moderators: seq[User]): VNode =
+proc renderCommunityAbout*(community: Community; moderators: seq[User]; prefs: Prefs): VNode =
   buildHtml(tdiv(class="community-about")):
     tdiv(class="community-info"):
       h2: text "Community Info"
@@ -91,7 +91,7 @@ proc renderCommunityAbout*(community: Community; moderators: seq[User]): VNode =
         for user in moderators:
           tdiv(class="community-moderator"):
             a(href=(&"/{user.username}")):
-              genImg(user.getUserPic("_bigger"), class="community-mod-avatar")
+              genImg(user.getUserPic("_bigger"), prefs.proxyVideos, class="community-mod-avatar")
             tdiv(class="community-mod-info"):
               a(href=(&"/{user.username}"), class="community-mod-name"):
                 text user.fullname
@@ -100,12 +100,12 @@ proc renderCommunityAbout*(community: Community; moderators: seq[User]): VNode =
               a(href=(&"/{user.username}"), class="community-mod-username"):
                 text &"@{user.username}"
 
-proc renderCommunity*(body, nav: VNode; community: Community): VNode =
+proc renderCommunity*(body, nav: VNode; community: Community; prefs: Prefs): VNode =
   buildHtml(tdiv(class="timeline-container")):
     if community.banner.len > 0:
       tdiv(class="timeline-banner"):
-        a(href=getPicUrl(community.banner), target="_blank"):
-          genImg(community.banner)
+        a(href=getPicUrl(community.banner, prefs.proxyVideos), target="_blank"):
+          genImg(community.banner, prefs.proxyVideos)
 
     tdiv(class="community-header"):
       h1(class="community-name"):

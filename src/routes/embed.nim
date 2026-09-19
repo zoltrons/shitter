@@ -115,6 +115,7 @@ proc createEmbedRouter*(cfg: Config) =
         embedUrl = getUrlPrefix(cfg) & "/" & tweet.user.username & "/status/" & tweetId & "/embed"
         authorUrl = getUrlPrefix(cfg) & "/" & tweet.user.username
         title = stripHtml(tweet.text)
+        prefs = requestPrefs()
 
       var response = %*{
         "version": "1.0",
@@ -132,7 +133,9 @@ proc createEmbedRouter*(cfg: Config) =
       }
 
       if tweet.media.len > 0:
-        let thumbUrl = getUrlPrefix(cfg) & getPicUrl(tweet.media[0].getThumb)
+        let
+          thumb = getPicUrl(tweet.media[0].getThumb, prefs.proxyVideos)
+          thumbUrl = if thumb.startsWith("http"): thumb else: getUrlPrefix(cfg) & thumb
         response["thumbnail_url"] = %thumbUrl
         response["thumbnail_width"] = %maxwidth
         response["thumbnail_height"] = %maxwidth

@@ -8,9 +8,9 @@ import ".."/[types, utils, formatters]
 proc renderBroadcast*(bc: Broadcast; prefs: Prefs; path: string): VNode =
   let
     isLive = bc.state == "RUNNING"
-    thumb = getPicUrl(bc.thumb)
+    thumb = getPicUrl(bc.thumb, prefs.proxyVideos)
     source = if prefs.proxyVideos and bc.m3u8Url.startsWith("http"):
-               getVidUrl(bc.m3u8Url) else: bc.m3u8Url
+               getVidUrl(bc.m3u8Url, prefs.proxyVideos) else: bc.m3u8Url
     stateText =
       if isLive: "LIVE"
       elif bc.endTime.year > 1: "Ended " & bc.endTime.format("MMM d, YYYY")
@@ -59,7 +59,7 @@ proc renderBroadcast*(bc: Broadcast; prefs: Prefs; path: string): VNode =
 
         tdiv(class="broadcast-user-row"):
           a(class="broadcast-user", href=("/" & bc.user.username)):
-            genImg(getUserPic(bc.user.userPic, "_bigger"))
+            genImg(getUserPic(bc.user.userPic, "_bigger"), prefs.proxyVideos)
             tdiv:
               tdiv:
                 strong: text bc.user.fullname

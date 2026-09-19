@@ -115,7 +115,7 @@ proc proxifyVideo*(manifest: string; proxy: bool; manifestUrl = ""): string =
            not url.startsWith("http") and ('.' in url): basePath & url
       else: ""
     if resolved.len > 0:
-      replacements.add (url, if proxy: resolved.getVidUrl else: resolved)
+      replacements.add (url, if proxy: resolved.getVidUrl(proxy) else: resolved)
   return manifest.multiReplace(replacements)
 
 proc getUserPic*(userPic: string; style=""): string =

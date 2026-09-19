@@ -5,10 +5,10 @@ import karax/[karaxdsl, vdom]
 import renderutils
 import ".."/[types, utils, formatters]
 
-proc renderParticipant(p: SpaceParticipant; role: string): VNode =
+proc renderParticipant(p: SpaceParticipant; role: string; prefs: Prefs): VNode =
   buildHtml(tdiv(class="space-participant")):
     a(href=("/" & p.username)):
-      genImg(p.avatarUrl.replace("_normal", "_bigger"))
+      genImg(p.avatarUrl.replace("_normal", "_bigger"), prefs.proxyVideos)
       tdiv(class="participant-info"):
         tdiv(class="participant-name"):
           strong: text p.displayName
@@ -24,7 +24,7 @@ proc renderSpace*(sp: AudioSpace; prefs: Prefs; path: string): VNode =
   let
     isLive = sp.state == "RUNNING"
     source = if prefs.proxyVideos and sp.m3u8Url.startsWith("http"):
-               getVidUrl(sp.m3u8Url) else: sp.m3u8Url
+               getVidUrl(sp.m3u8Url, prefs.proxyVideos) else: sp.m3u8Url
     stateText =
       if isLive: "LIVE"
       elif sp.endTime.year > 1: "Ended " & sp.endTime.format("MMM d, YYYY")
@@ -81,6 +81,6 @@ proc renderSpace*(sp: AudioSpace; prefs: Prefs; path: string): VNode =
             for admin in sp.admins:
               let role = if admin.username == sp.creator.username: "Host"
                          else: "Co-host"
-              renderParticipant(admin, role)
+              renderParticipant(admin, role, prefs)
             for speaker in sp.speakers:
-              renderParticipant(speaker, "")
+              renderParticipant(speaker, "", prefs)

@@ -476,7 +476,7 @@ proc parseCard(js: JsonNode; urls: JsonNode): Card =
 
   if kind in {promoImageConvo, promoImageApp, imageDirectMessage} and
      result.url.len == 0 or result.url.startsWith("card://"):
-    result.url = getPicUrl(result.image)
+    result.url = getPicUrl(result.image, false)
 
 proc parseTweet(js: JsonNode; jsCard: JsonNode = newJNull();
                 replyId: int64 = 0; hasArticle = false): Tweet =

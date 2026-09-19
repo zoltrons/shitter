@@ -5,7 +5,7 @@ import nimcrypto
 var
   hmacKey: string
   base64Media = false
-  proxyVideos = false
+  proxyVideos* = false
 
 const
   https* = "https://"
@@ -47,30 +47,59 @@ proc setProxyVideos*(state: bool) =
 proc getHmac*(data: string): string =
   ($hmac(sha256, hmacKey, data))[0 .. 12]
 
-proc getVidUrl*(link: string): string =
+proc directMediaUrl*(link: string): string =
+  ## Returns the direct twimg URL for a media link. Internal media URLs have
+  ## the `https://pbs.twimg.com/` prefix stripped, so it has to be restored.
   if link.len == 0: return
-  if not proxyVideos and link.isTwimgUrl: return link
+  if link.startsWith(https): return link
+  if link.startsWith("twimg.com/") or link.startsWith("abs.twimg.com/") or
+     link.startsWith("pbs.twimg.com/") or link.startsWith("video.twimg.com/"):
+    return https & link
+  https & twimg & link
+
+proc getVidUrl*(link: string; proxy: bool): string =
+  if link.len == 0: return
+  if not proxy: return directMediaUrl(link)
   let sig = getHmac(link)
   if base64Media:
     &"/video/enc/{sig}/{encode(link, safe=true)}"
   else:
     &"/video/{sig}/{encodeUrl(link)}"
 
-proc getPicUrl*(link: string): string =
+proc getVidUrl*(link: string): string =
+  getVidUrl(link, proxyVideos)
+
+proc getPicUrl*(link: string; proxy: bool): string =
   if link.len == 0: return
-  if not proxyVideos and link.isTwimgUrl: return link
+  if not proxy: return directMediaUrl(link)
   if base64Media:
     &"/pic/enc/{encode(link, safe=true)}"
   else:
     &"/pic/{encodeUrl(link)}"
 
-proc getOrigPicUrl*(link: string): string =
+proc getPicUrl*(link: string): string =
+  getPicUrl(link, proxyVideos)
+
+proc getOrigPicUrl*(link: string; proxy: bool): string =
   if link.len == 0: return
-  if not proxyVideos and link.isTwimgUrl: return link
+  if not proxy:
+    result = directMediaUrl(link)
+    if result.isTwimgUrl:
+      result &= (if "?" in result: "&name=orig" else: "?name=orig")
+    return
   if base64Media:
     &"/pic/orig/enc/{encode(link, safe=true)}"
   else:
     &"/pic/orig/{encodeUrl(link)}"
+
+proc getOrigPicUrl*(link: string): string =
+  getOrigPicUrl(link, proxyVideos)
+
+proc mediaUrl*(url: string; proxy: bool; urlPrefix = ""): string =
+  ## Returns the media URL, prefixing it with `urlPrefix` only when it is
+  ## relative (i.e. when media is proxied through this instance).
+  let pic = getPicUrl(url, proxy)
+  if pic.startsWith("http"): pic else: urlPrefix & pic
 
 proc filterParams*(params: Table): seq[(string, string)] =
   for p in params.pairs():

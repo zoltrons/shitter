@@ -26,13 +26,13 @@ proc renderAtomicParagraph(paragraph: ArticleParagraph; article: Article;
           continue
         case media.kind
         of "ApiGif":
-          video(src=getVidUrl(media.url), controls="", autoplay="", loop="",
+          video(src=getVidUrl(media.url, prefs.proxyVideos), controls="", autoplay="", loop="",
                 muted="")
         of "ApiVideo":
-          video(src=getVidUrl(media.url), controls="")
+          video(src=getVidUrl(media.url, prefs.proxyVideos), controls="")
         else:
-          a(href=getOrigPicUrl(media.url), target="_blank"):
-            img(src=getSmallPic(media.url), alt=entity.caption, loading="lazy")
+          a(href=getOrigPicUrl(media.url, prefs.proxyVideos), target="_blank"):
+            img(src=getSmallPic(media.url, prefs.proxyVideos), alt=entity.caption, loading="lazy")
       if entity.caption.len > 0:
         p(class="article-media-caption"): text entity.caption
   of "TWEET":
@@ -198,7 +198,7 @@ proc renderArticle*(article: Article; tweets: Table[int64, Tweet];
     tdiv(class="article-author"):
       tdiv(class="article-author-row"):
         a(class="article-avatar", href=("/" & author.username)):
-          genImg(author.getUserPic("_bigger"), class=prefs.getAvatarClass)
+          genImg(author.getUserPic("_bigger"), prefs.proxyVideos, class=prefs.getAvatarClass)
         tdiv(class="article-author-info"):
           tdiv(class="article-author-name"):
             linkUser(author, class="fullname")
@@ -242,7 +242,7 @@ proc renderArticle*(article: Article; tweets: Table[int64, Tweet];
 
   buildHtml(tdiv(class="article-page")):
     if article.coverImage.len > 0:
-      a(href=getOrigPicUrl(article.coverImage), target="_blank"):
-        img(class="article-cover", src=getSmallPic(article.coverImage), alt="")
+      a(href=getOrigPicUrl(article.coverImage, prefs.proxyVideos), target="_blank"):
+        img(class="article-cover", src=getSmallPic(article.coverImage, prefs.proxyVideos), alt="")
     main
     renderToTop()

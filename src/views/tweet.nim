@@ -9,7 +9,7 @@ import ".."/[types, utils, formatters]
 const doctype = "<!DOCTYPE html>\n"
 
 proc renderMiniAvatar*(user: User; prefs: Prefs): VNode =
-  genImg(user.getUserPic("_mini"), class=(prefs.getAvatarClass & " mini"))
+  genImg(user.getUserPic("_mini"), prefs.proxyVideos, class=(prefs.getAvatarClass & " mini"))
 
 proc renderArticleCard(preview: ArticlePreview; prefs: Prefs): VNode =
   let url = "/i/article/" & $preview.tweetId
@@ -18,7 +18,7 @@ proc renderArticleCard(preview: ArticlePreview; prefs: Prefs): VNode =
       if preview.coverImage.len > 0:
         tdiv(class="card-image-container"):
           tdiv(class="card-image"):
-            genImg(preview.coverImage)
+            genImg(preview.coverImage, prefs.proxyVideos)
           span(class="article-card-badge"): text "Article"
       tdiv(class="card-content-container"):
         tdiv(class="card-content"):
@@ -44,7 +44,7 @@ proc renderHeader(tweet: Tweet; retweet: string; pinned: bool; prefs: Prefs;
         var size = "_bigger"
         if not prefs.autoplayGifs and tweet.user.userPic.endsWith("gif"):
           size = "_400x400"
-        genImg(tweet.user.getUserPic(size), class=prefs.getAvatarClass)
+        genImg(tweet.user.getUserPic(size), prefs.proxyVideos, class=prefs.getAvatarClass)
 
       tdiv(class="tweet-name-row"):
         tdiv(class="fullname-and-username"):
@@ -60,15 +60,15 @@ proc renderAltText(altText: string): VNode =
   buildHtml(p(class="alt-text")):
     text "ALT  " & altText
 
-proc renderPhotoAttachment(photo: Photo; bigThumb=false): VNode =
+proc renderPhotoAttachment(photo: Photo; prefs: Prefs; bigThumb=false): VNode =
   buildHtml(tdiv(class="attachment")):
     let
       named = "name=" in photo.url
       thumb = if named: photo.url
               elif bigThumb: photo.url & mediumWebp
               else: photo.url & smallWebp
-    a(href=getOrigPicUrl(photo.url), class="still-image", target="_blank"):
-      genImg(thumb, alt=photo.altText)
+    a(href=getOrigPicUrl(photo.url, prefs.proxyVideos), class="still-image", target="_blank"):
+      genImg(thumb, prefs.proxyVideos, alt=photo.altText)
     if photo.altText.len > 0:
       renderAltText(photo.altText)
 
@@ -96,17 +96,17 @@ proc renderVideoUnavailable(video: Video): VNode =
     else:
       p: text "This media is unavailable"
 
-proc getVideoDownloadUrl(videoData: Video): string =
+proc getVideoDownloadUrl(videoData: Video; prefs: Prefs): string =
   let mp4Vars = videoData.variants.filterIt(it.contentType == mp4)
   if mp4Vars.len == 0: return ""
   let best = mp4Vars.sortedByIt(it.bitrate)[^1].url
-  if best.startsWith("http"): getVidUrl(best) else: best
+  if best.startsWith("http"): getVidUrl(best, prefs.proxyVideos) else: best
 
 proc renderVideoAttachment(videoData: Video; prefs: Prefs; path=""; bigThumb=false): VNode =
   let
     playbackType = if not prefs.proxyVideos and videoData.hasMp4Url: mp4
                    else: videoData.playbackType
-    thumb = if bigThumb: getMediumPic(videoData.thumb) else: getSmallPic(videoData.thumb)
+    thumb = if bigThumb: getMediumPic(videoData.thumb, prefs.proxyVideos) else: getSmallPic(videoData.thumb, prefs.proxyVideos)
 
   buildHtml(tdiv(class="attachment")):
     if not videoData.available:
@@ -120,7 +120,7 @@ proc renderVideoAttachment(videoData: Video; prefs: Prefs; path=""; bigThumb=fal
         vars = videoData.variants.filterIt(it.contentType == playbackType)
         vidUrl = vars.sortedByIt(it.resolution)[^1].url
         source = if prefs.proxyVideos and vidUrl.startsWith("http"):
-                   getVidUrl(vidUrl) else: vidUrl
+                   getVidUrl(vidUrl, prefs.proxyVideos) else: vidUrl
       case playbackType
       of mp4:
         video(poster=thumb, controls="", muted=prefs.muteVideos):
@@ -133,7 +133,7 @@ proc renderVideoAttachment(videoData: Video; prefs: Prefs; path=""; bigThumb=fal
           tdiv(class="overlay-duration"): text getDuration(videoData)
         verbatim "</div>"
     if videoData.available:
-      let dlUrl = getVideoDownloadUrl(videoData)
+      let dlUrl = getVideoDownloadUrl(videoData, prefs)
       if dlUrl.len > 0:
         a(class="video-download", href=dlUrl, download="",
           title="Download video"): icon "download-alt"
@@ -151,7 +151,7 @@ proc renderVideo*(video: Video; prefs: Prefs; path: string; bigThumb=false): VNo
             p(class="card-description"): text video.description
 
 proc renderGifAttachment(gif: Gif; prefs: Prefs; path=""): VNode =
-  let thumb = getSmallPic(gif.thumb)
+  let thumb = getSmallPic(gif.thumb, prefs.proxyVideos)
 
   buildHtml(tdiv(class="attachment")):
     if not prefs.mp4Playback:
@@ -159,10 +159,10 @@ proc renderGifAttachment(gif: Gif; prefs: Prefs; path=""): VNode =
       renderVideoDisabled(mp4, path)
     elif prefs.autoplayGifs:
       video(class="gif", poster=thumb, autoplay="", muted="", loop=""):
-        source(src=getPicUrl(gif.url), `type`="video/mp4")
+        source(src=getPicUrl(gif.url, prefs.proxyVideos), `type`="video/mp4")
     else:
       video(class="gif", poster=thumb, controls="", muted="", loop=""):
-        source(src=getPicUrl(gif.url), `type`="video/mp4")
+        source(src=getPicUrl(gif.url, prefs.proxyVideos), `type`="video/mp4")
     if gif.altText.len > 0:
       renderAltText(gif.altText)
 
@@ -194,7 +194,7 @@ proc renderMedia(media: seq[Media]; prefs: Prefs; path: string; bigThumb=false):
         for mediaItem in mediaGroup:
           case mediaItem.kind
           of photoMedia:
-            renderPhotoAttachment(mediaItem.photo, bigThumb)
+            renderPhotoAttachment(mediaItem.photo, prefs, bigThumb)
           of videoMedia:
             renderVideoAttachment(mediaItem.video, prefs, path, bigThumb)
           of gifMedia:
@@ -215,10 +215,10 @@ proc renderPoll(poll: Poll): VNode =
     span(class="poll-info"):
       text &"{insertSep($poll.votes, ',')} votes • {poll.status}"
 
-proc renderCardImage(card: Card): VNode =
+proc renderCardImage(card: Card; prefs: Prefs): VNode =
   buildHtml(tdiv(class="card-image-container")):
     tdiv(class="card-image"):
-      genImg(card.image)
+      genImg(card.image, prefs.proxyVideos)
       if card.kind == player:
         tdiv(class="card-overlay"):
           tdiv(class="overlay-circle"):
@@ -246,7 +246,7 @@ proc renderCard(card: Card; prefs: Prefs; path: string): VNode =
     else:
       a(class="card-container", href=url):
         if card.image.len > 0:
-          renderCardImage(card)
+          renderCardImage(card, prefs)
         tdiv(class="card-content-container"):
           renderCardContent(card)
 

@@ -87,7 +87,7 @@ proc renderUser(user: User; prefs: Prefs): VNode =
     tdiv(class="tweet-body profile-result"):
       tdiv(class="tweet-header"):
         a(class="tweet-avatar", href=("/" & user.username)):
-          genImg(user.getUserPic("_bigger"), class=prefs.getAvatarClass)
+          genImg(user.getUserPic("_bigger"), prefs.proxyVideos, class=prefs.getAvatarClass)
 
         tdiv(class="tweet-name-row"):
           tdiv(class="fullname-and-username"):
@@ -140,13 +140,13 @@ proc renderMentionedText(s: string): VNode =
       else:
         text words[i]
 
-proc renderListCard(r: ListSearchResult): VNode =
+proc renderListCard(r: ListSearchResult; prefs: Prefs): VNode =
   let listUrl = "/i/lists/" & r.list.id
   buildHtml(tdiv(class="timeline-item list-result")):
     a(class="tweet-link", href=listUrl)
     a(class="list-result-banner", href=listUrl):
       if r.list.banner.len > 0:
-        genImg(r.list.banner)
+        genImg(r.list.banner, prefs.proxyVideos)
     tdiv(class="list-result-body"):
       tdiv(class="list-result-title fullname-and-username"):
         a(class="list-name fullname", href=listUrl): text r.list.name
@@ -159,16 +159,16 @@ proc renderListCard(r: ListSearchResult): VNode =
           for i in 0 ..< r.facepiles.len:
             if i == 0 and mentioned.len > 0:
               a(class="facepile-link", href=("/" & mentioned)):
-                genImg(r.facepiles[i], class="list-facepile")
+                genImg(r.facepiles[i], prefs.proxyVideos, class="list-facepile")
             else:
-              genImg(r.facepiles[i], class="list-facepile")
+              genImg(r.facepiles[i], prefs.proxyVideos, class="list-facepile")
           renderMentionedText(r.followersContext)
         else:
           if r.owner.username.len > 0:
             a(class="facepile-link", href=("/" & r.owner.username)):
-              genImg(r.owner.getUserPic("_mini"), class="list-facepile")
+              genImg(r.owner.getUserPic("_mini"), prefs.proxyVideos, class="list-facepile")
           else:
-            genImg(r.owner.getUserPic("_mini"), class="list-facepile")
+            genImg(r.owner.getUserPic("_mini"), prefs.proxyVideos, class="list-facepile")
           linkUser(r.owner, class="fullname")
           linkUser(r.owner, class="username")
       if r.list.description.len > 0:
@@ -183,7 +183,7 @@ proc renderTimelineLists*(results: Result[ListSearchResult]; prefs: Prefs;
 
     if results.content.len > 0:
       for list in results.content:
-        renderListCard(list)
+        renderListCard(list, prefs)
       if results.bottom.len > 0:
         renderMore(results.query, results.bottom)
       renderToTop()

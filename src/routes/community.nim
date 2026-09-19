@@ -13,7 +13,7 @@ template respCommunity*(cmty: Community; title: string; nav, vnode: typed) =
   if cmty.id.len == 0 or cmty.name.len == 0:
     resp Http404, showError(&"""Community "{@"id"}" not found""", cfg)
 
-  let html = renderCommunity(vnode, nav, cmty)
+  let html = renderCommunity(vnode, nav, cmty, prefs)
   resp renderMain(html, request, cfg, prefs, titleText=title, banner=cmty.banner)
 
 proc createCommunityRouter*(cfg: Config) =
@@ -56,7 +56,7 @@ proc createCommunityRouter*(cfg: Config) =
         mods = await getCachedCommunityModerators(cmty.id)
       respCommunity(cmty, cmty.name & " - About",
                      renderCommunityTabs(QueryKind.userList, cmty),
-                     renderCommunityAbout(cmty, mods))
+                     renderCommunityAbout(cmty, mods, prefs))
 
     get "/i/communities/@id/members":
       cond '.' notin @"id"

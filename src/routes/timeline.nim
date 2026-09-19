@@ -143,7 +143,7 @@ proc createTimelineRouter*(cfg: Config) =
         resp showError(getSuspended(name), cfg)
       if info.username.len == 0:
         resp Http404, showError("User \"" & name & "\" not found", cfg)
-      let aboutHtml = renderAboutAccount(info)
+      let aboutHtml = renderAboutAccount(info, prefs)
       resp renderMain(aboutHtml, request, cfg, prefs,
                       "About @" & info.username)
 

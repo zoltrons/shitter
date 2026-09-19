@@ -6,19 +6,25 @@ import ".."/[types, utils]
 const smallWebp* = "?name=small&format=webp"
 const mediumWebp* = "?name=medium&format=webp"
 
-proc getSmallPic*(url: string): string =
+proc getSmallPic*(url: string; proxy: bool): string =
   if url.len == 0: return
   result = url
   if "?" notin url and not url.endsWith("placeholder.png"):
     result &= smallWebp
-  result = getPicUrl(result)
+  result = getPicUrl(result, proxy)
 
-proc getMediumPic*(url: string): string =
+proc getSmallPic*(url: string): string =
+  getSmallPic(url, proxyVideos)
+
+proc getMediumPic*(url: string; proxy: bool): string =
   if url.len == 0: return
   result = url
   if "?" notin url and not url.endsWith("placeholder.png"):
     result &= mediumWebp
-  result = getPicUrl(result)
+  result = getPicUrl(result, proxy)
+
+proc getMediumPic*(url: string): string =
+  getMediumPic(url, proxyVideos)
 
 proc icon*(icon: string; label=""; title=""; class=""; href=""): VNode =
   var c = "icon-" & icon
@@ -106,9 +112,12 @@ proc genNumberInput*(pref, label, state, placeholder: string; class=""; autofocu
       label(`for`=pref): text label
     input(name=pref, `type`="number", placeholder=p, value=state, autofocus=(autofocus and state.len == 0), min=min, step="1")
 
-proc genImg*(url: string; class=""; alt=""): VNode =
+proc genImg*(url: string; proxy: bool; class=""; alt=""): VNode =
   buildHtml():
-    img(src=getPicUrl(url), class=class, alt=alt, loading="lazy")
+    img(src=getPicUrl(url, proxy), class=class, alt=alt, loading="lazy")
+
+proc genImg*(url: string; class=""; alt=""): VNode =
+  genImg(url, proxyVideos, class, alt)
 
 proc getTabClass*(query: Query; tab: QueryKind): string =
   if query.kind == tab: "tab-item active"

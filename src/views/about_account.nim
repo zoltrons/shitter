@@ -5,7 +5,7 @@ import karax/[karaxdsl, vdom]
 import renderutils
 import ".."/[types, formatters]
 
-proc renderAboutAccount*(info: AccountInfo): VNode =
+proc renderAboutAccount*(info: AccountInfo; prefs: Prefs): VNode =
   let user = User(
     username: info.username,
     fullname: info.fullname,
@@ -16,7 +16,7 @@ proc renderAboutAccount*(info: AccountInfo): VNode =
   buildHtml(tdiv(class="about-account")):
     tdiv(class="about-account-header"):
       a(class="about-account-avatar", href=(&"/{info.username}")):
-        genImg(getUserPic(info.userPic, "_200x200"))
+        genImg(getUserPic(info.userPic, "_200x200"), prefs.proxyVideos)
       tdiv(class="about-account-name"):
         linkUser(user, class="profile-card-fullname")
         verifiedIcon(user)
