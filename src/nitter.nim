@@ -39,6 +39,7 @@ if cfg.hmacKey.len == 0 or cfg.hmacKey == "secretkey":
     "set a unique random value to stop media URL signatures being forgeable.\n"
   stderr.flushFile
 setProxyEncoding(cfg.base64Media)
+setProxyVideos(defaultPrefs.proxyVideos)
 setMaxHttpConns(cfg.httpMaxConns)
 setHttpProxy(cfg.proxy, cfg.proxyAuth)
 setApiProxy(cfg.apiProxy)

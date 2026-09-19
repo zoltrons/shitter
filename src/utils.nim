@@ -5,11 +5,18 @@ import nimcrypto
 var
   hmacKey: string
   base64Media = false
+  proxyVideos = true
 
 const
   https* = "https://"
   twimg* = "pbs.twimg.com/"
   nitterParams* = ["name", "tab", "id", "list", "referer", "scroll", "prefs"]
+  twimgDomains* = @[
+    "twimg.com",
+    "abs.twimg.com",
+    "pbs.twimg.com",
+    "video.twimg.com"
+  ]
   twitterDomains = @[
     "twitter.com",
     "pic.twitter.com",
@@ -22,17 +29,27 @@ const
     "video.pscp.tv"
   ]
 
+proc isTwimgUrl*(uri: Uri): bool =
+  uri.hostname in twimgDomains or uri.hostname.endsWith(".twimg.com")
+
+proc isTwimgUrl*(url: string): bool =
+  isTwimgUrl(parseUri(url))
+
 proc setHmacKey*(key: string) =
   hmacKey = key
 
 proc setProxyEncoding*(state: bool) =
   base64Media = state
 
+proc setProxyVideos*(state: bool) =
+  proxyVideos = state
+
 proc getHmac*(data: string): string =
   ($hmac(sha256, hmacKey, data))[0 .. 12]
 
 proc getVidUrl*(link: string): string =
   if link.len == 0: return
+  if not proxyVideos and link.isTwimgUrl: return link
   let sig = getHmac(link)
   if base64Media:
     &"/video/enc/{sig}/{encode(link, safe=true)}"
@@ -41,6 +58,7 @@ proc getVidUrl*(link: string): string =
 
 proc getPicUrl*(link: string): string =
   if link.len == 0: return
+  if not proxyVideos and link.isTwimgUrl: return link
   if base64Media:
     &"/pic/enc/{encode(link, safe=true)}"
   else:
@@ -48,6 +66,7 @@ proc getPicUrl*(link: string): string =
 
 proc getOrigPicUrl*(link: string): string =
   if link.len == 0: return
+  if not proxyVideos and link.isTwimgUrl: return link
   if base64Media:
     &"/pic/orig/enc/{encode(link, safe=true)}"
   else:
