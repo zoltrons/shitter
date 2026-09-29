@@ -41,7 +41,8 @@
     },
     {
         "url": "https://nitter.kareem.one",
-        "tor": "http://dhgjnhkxtgesvcddfwzqm4d4zmyz2x2jud6huweu5iywuvoo7qaqpjid.onion"
+        "tor": "http://dhgjnhkxtgesvcddfwzqm4d4zmyz2x2jud6huweu5iywuvoo7qaqpjid.onion",
+        "cloudflare": true
     },
     {
         "url": "https://bitter.st"
