@@ -4,6 +4,10 @@
         "cloudflare": true
     },
     {
+        "url": "https://nitter.pp.ua",
+        "cloudflare": true
+    },
+    {
         "url": "https://nitter.miningtcup.me",
         "tor": "http://nitter.dog5267ah4m4f4677r33b2pzq667lwhsqupojioqz4rg6e2q74p3xtyd.onion"
     },
