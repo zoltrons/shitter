@@ -12,8 +12,8 @@ import routes/[
   preferences, timeline, status, media, search, rss, list, community, debug,
   unsupported, embed, resolver, broadcast, space, article, router_utils]
 
-const instancesUrl = "https://codeberg.org/mv12star/shitter/wiki/Instances"
-const issuesUrl = "https://codeberg.org/mv12star/shitter/issues"
+const instancesUrl = "https://codeberg.org/shitter/shitter/wiki/Instances"
+const issuesUrl = "https://codeberg.org/shitter/shitter/issues"
 
 let
   configPath = getEnv("NITTER_CONF_FILE", "./nitter.conf")

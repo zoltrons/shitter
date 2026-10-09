@@ -1,3 +1,5 @@
+![shitter logo](/public/android-chrome-192x192.png)
+
 # Shitter - a Nitter fork
 
 A free and open source alternative Twitter front-end focused on privacy and
@@ -16,7 +18,7 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
 > [!NOTE]
 > Running a Nitter instance now requires real accounts, since Twitter removed the previous methods. \
 > This does not affect users. \
-> For instructions on how to obtain session tokens, see [Creating session tokens](https://codeberg.org/mv12star/shitter/wiki/Creating-session-tokens).
+> For instructions on how to obtain session tokens, see [Creating session tokens](https://codeberg.org/shitter/shitter/wiki/Creating-session-tokens).
 
 ## Roadmap
 
@@ -28,8 +30,8 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
 ## Resources
 
 The wiki contains
-[a list of instances](https://codeberg.org/mv12star/shitter/wiki/Instances) and
-[browser extensions](https://codeberg.org/mv12star/shitter/wiki/Extensions)
+[a list of instances](https://codeberg.org/shitter/shitter/wiki/Instances) and
+[browser extensions](https://codeberg.org/shitter/shitter/wiki/Extensions)
 maintained by the community.
 
 ## Why?
@@ -56,7 +58,7 @@ Twitter account.
 
 ## Screenshot
 
-![nitter](/screenshot.png)
+<img src="./screenshot.png" width="400" alt="nitter screenshot - Framasoft">
 
 ## Installation
 
@@ -86,7 +88,7 @@ along with the scss and md files.
 ```bash
 # useradd -m nitter
 # su nitter
-$ git clone https://codeberg.org/mv12star/shitter
+$ git clone https://codeberg.org/shitter/shitter
 $ cd nitter
 $ nimble -l build -d:danger --mm:refc
 $ nimble -l scss
@@ -99,8 +101,8 @@ Redis info in `nitter.conf`. To run Redis, either run
 `redis-server --daemonize yes`, or `systemctl enable --now redis` (or
 redis-server depending on the distro). Run Nitter by executing `./nitter` or
 using the systemd service below. You should run Nitter behind a reverse proxy
-such as [Nginx](https://codeberg.org/mv12star/shitter/wiki/Nginx) or
-[Apache](https://codeberg.org/mv12star/shitter/wiki/Apache) for security and
+such as [Nginx](https://codeberg.org/shitter/shitter/wiki/Nginx) or
+[Apache](https://codeberg.org/shitter/shitter/wiki/Apache) for security and
 performance reasons.
 
 ### Docker
@@ -121,7 +123,7 @@ cp nitter.example.conf nitter.conf
 ```
 
 If you're using the prebuilt image without a local clone, download
-[`nitter.example.conf`](https://codeberg.org/mv12star/shitter/src/branch/master/nitter.example.conf)
+[`nitter.example.conf`](https://codeberg.org/shitter/shitter/src/branch/master/nitter.example.conf)
 and save it as `nitter.conf` instead.
 
 To build and run Nitter in Docker:
@@ -191,4 +193,4 @@ lines). If you're running the Docker image, you can do this:
 
 ## Matrix channel
 
-Feel free to join our [Matrix channel](https://matrix.to/#/#nitter:matrix.org).
+Feel free to join our [Matrix channel](https://matrix.to/#/#libre-offtopic:tchncs.de).

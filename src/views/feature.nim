@@ -7,8 +7,8 @@ proc renderFeature*(): VNode =
     p:
       text "Nitter doesn't support this feature yet, but it might in the future. "
       text "You can check for an issue and open one if needed here: "
-      a(href="https://codeberg.org/mv12star/shitter/issues"):
-        text "https://codeberg.org/mv12star/shitter/issues"
+      a(href="https://codeberg.org/shitter/shitter/issues"):
+        text "https://codeberg.org/shitter/shitter/issues"
     p:
       text "To find out more about the Nitter project, see the "
       a(href="/about"): text "About page"

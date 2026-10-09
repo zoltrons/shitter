@@ -2,7 +2,7 @@
 
 Nitter is a free and open source alternative Twitter front-end focused on
 privacy and performance. The source is available at
-<https://codeberg.org/mv12star/shitter>
+<https://codeberg.org/shitter/shitter>
 
 - No JavaScript or ads
 - All requests go through the backend, client never talks to Twitter
@@ -14,8 +14,8 @@ privacy and performance. The source is available at
 - Mobile support (responsive design)
 
 Nitter's wiki contains
-[instances](https://codeberg.org/mv12star/shitter/wiki/Instances) and
-[browser extensions](https://codeberg.org/mv12star/shitter/wiki/Extensions)
+[instances](https://codeberg.org/shitter/shitter/wiki/Instances) and
+[browser extensions](https://codeberg.org/shitter/shitter/wiki/Extensions)
 maintained by the community.
 
 ## Why use Nitter?
@@ -42,4 +42,4 @@ Twitter account.
 
 ## Contact
 
-Feel free to join our [Matrix channel](https://matrix.to/#/#nitter:matrix.org).
+Feel free to join our [Matrix channel](https://matrix.to/#/#libre-offtopic:tchncs.de).
