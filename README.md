@@ -10,29 +10,21 @@ Inspired by the [Invidious](https://github.com/iv-org/invidious) project.
 - All requests go through the backend, client never talks to Twitter
 - Prevents Twitter from tracking your IP or JavaScript fingerprint
 - Uses Twitter's unofficial API (no developer account required)
-- Lightweight (for [@nim_lang](https://shitter.thepixora.com/nim_lang), 60KB vs 784KB from twitter.com)
+- Lightweight (thanks to [@nim_lang](https://shitter.thepixora.com/nim_lang), 60KB vs 784KB from twitter.com)
 - RSS feeds
 - Themes
 - Mobile support (responsive design)
 
-> [!NOTE]
-> Running a Nitter instance now requires real accounts, since Twitter removed the previous methods. \
-> This does not affect users. \
-> For instructions on how to obtain session tokens, see [Creating session tokens](https://codeberg.org/shitter/shitter/wiki/Creating-session-tokens).
-
-## Roadmap
-
-- Embeds
-- Account system with timeline support
-- Archiving tweets/profiles
-- Developer API
-
 ## Resources
 
-The wiki contains
-[a list of instances](https://codeberg.org/shitter/shitter/wiki/Instances) and
-[browser extensions](https://codeberg.org/shitter/shitter/wiki/Extensions)
-maintained by the community.
+The wiki contains:
+- [**List of public instances**](https://codeberg.org/shitter/shitter/wiki/Instances)
+- [Forks of the Nitter code repository](https://codeberg.org/shitter/shitter/wiki/Forks-of-the-Nitter-code-repository)
+- [Browser extensions](https://codeberg.org/shitter/shitter/wiki/Extensions) for auto-redirecting to Nitter
+- Guide: [Self-hosting a Nitter instance](https://codeberg.org/shitter/shitter/wiki/Self-hosting+a+Nitter+instance.-)
+- Guide: [How to obtain session tokens](https://codeberg.org/shitter/shitter/wiki/Creating-session-tokens)
+- Guide: [Using Nitter embeds](https://codeberg.org/shitter/shitter/wiki/Embeds-guide)
+
 
 ## Why?
 
@@ -52,58 +44,11 @@ Twitter without JavaScript while retaining your privacy. In addition to
 respecting your privacy, Nitter is on average around 15 times lighter than
 Twitter, and in most cases serves pages faster (eg. timelines load 2-4x faster).
 
-In the future a simple account system will be added that lets you follow Twitter
-users, allowing you to have a clean chronological timeline without needing a
-Twitter account.
-
 ## Screenshot
 
 <img src="./screenshot.png" width="400" alt="nitter screenshot - Framasoft">
 
-## Installation
-
-### Dependencies
-
-- libpcre
-- libsass
-- redis/valkey
-
-To compile Nitter you need a Nim installation, see
-[nim-lang.org](https://nim-lang.org/install.html) for details. It is possible
-to install it system-wide or in the user directory you create below.
-
-To compile the scss files, you need to install `libsass`. On Ubuntu and Debian,
-you can use `libsass-dev`.
-
-Redis is required for caching and in the future for account info. As of 2024
-Redis is no longer open source, so using the fork Valkey is recommended. It
-should be available on most distros as `redis` or `redis-server`
-(Ubuntu/Debian), or `valkey`/`valkey-server`. Running it with the default
-config is fine, Nitter's default config is set to use the default port and
-localhost.
-
-Here's how to create a `nitter` user, clone the repo, and build the project
-along with the scss and md files.
-
-```bash
-# useradd -m nitter
-# su nitter
-$ git clone https://codeberg.org/shitter/shitter
-$ cd nitter
-$ nimble -l build -d:danger --mm:refc
-$ nimble -l scss
-$ nimble -l md
-$ cp nitter.example.conf nitter.conf
-```
-
-Set your hostname, port, HMAC key, https (must be correct for cookies), and
-Redis info in `nitter.conf`. To run Redis, either run
-`redis-server --daemonize yes`, or `systemctl enable --now redis` (or
-redis-server depending on the distro). Run Nitter by executing `./nitter` or
-using the systemd service below. You should run Nitter behind a reverse proxy
-such as [Nginx](https://codeberg.org/shitter/shitter/wiki/Nginx) or
-[Apache](https://codeberg.org/shitter/shitter/wiki/Apache) for security and
-performance reasons.
+## Install
 
 ### Docker
 
@@ -190,6 +135,51 @@ implemented. If you're running Nitter with systemd, you can check stdout like
 this: `journalctl -u nitter.service` (add `--follow` to see just the last 15
 lines). If you're running the Docker image, you can do this:
 `docker logs --follow *nitter container id*`
+
+## Build from source
+
+### Dependencies
+
+- libpcre
+- libsass
+- redis/valkey
+
+To compile Nitter you need a Nim installation, see
+[nim-lang.org](https://nim-lang.org/install.html) for details. It is possible
+to install it system-wide or in the user directory you create below.
+
+To compile the scss files, you need to install `libsass`. On Ubuntu and Debian,
+you can use `libsass-dev`.
+
+Redis is required for caching and in the future for account info. As of 2024
+Redis is no longer open source, so using the fork Valkey is recommended. It
+should be available on most distros as `redis` or `redis-server`
+(Ubuntu/Debian), or `valkey`/`valkey-server`. Running it with the default
+config is fine, Nitter's default config is set to use the default port and
+localhost.
+
+Here's how to create a `nitter` user, clone the repo, and build the project
+along with the scss and md files.
+
+```bash
+# useradd -m nitter
+# su nitter
+$ git clone https://codeberg.org/shitter/shitter
+$ cd nitter
+$ nimble -l build -d:danger --mm:refc
+$ nimble -l scss
+$ nimble -l md
+$ cp nitter.example.conf nitter.conf
+```
+
+Set your hostname, port, HMAC key, https (must be correct for cookies), and
+Redis info in `nitter.conf`. To run Redis, either run
+`redis-server --daemonize yes`, or `systemctl enable --now redis` (or
+redis-server depending on the distro). Run Nitter by executing `./nitter` or
+using the systemd service below. You should run Nitter behind a reverse proxy
+such as [Nginx](https://codeberg.org/shitter/shitter/wiki/Nginx) or
+[Apache](https://codeberg.org/shitter/shitter/wiki/Apache) for security and
+performance reasons.
 
 ## Matrix channel
 
