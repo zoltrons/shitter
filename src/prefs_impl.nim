@@ -100,6 +100,9 @@ genPrefs:
     muteVideos(checkbox, false):
       "Mute videos by default"
 
+    disableVideoPreload(checkbox, true):
+      "Disable video preloading"
+
     autoplayGifs(checkbox, true):
       "Autoplay gifs"
 

@@ -126,3 +126,7 @@ proc getTabClass*(query: Query; tab: QueryKind): string =
 proc getAvatarClass*(prefs: Prefs): string =
   if prefs.squareAvatars: "avatar"
   else: "avatar round"
+
+proc videoPreload*(prefs: Prefs): string =
+  if prefs.disableVideoPreload: "none"
+  else: "metadata"

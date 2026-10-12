@@ -29,7 +29,8 @@ proc renderAtomicParagraph(paragraph: ArticleParagraph; article: Article;
           video(src=getVidUrl(media.url, prefs.proxyVideos), controls="", autoplay="", loop="",
                 muted="")
         of "ApiVideo":
-          video(src=getVidUrl(media.url, prefs.proxyVideos), controls="")
+          video(src=getVidUrl(media.url, prefs.proxyVideos), controls="",
+                preload=prefs.videoPreload)
         else:
           a(href=getOrigPicUrl(media.url, prefs.proxyVideos), target="_blank"):
             img(src=getSmallPic(media.url, prefs.proxyVideos), alt=entity.caption, loading="lazy")

@@ -123,7 +123,7 @@ proc renderVideoAttachment(videoData: Video; prefs: Prefs; path=""; bigThumb=fal
                    getVidUrl(vidUrl, prefs.proxyVideos) else: vidUrl
       case playbackType
       of mp4:
-        video(poster=thumb, controls="", muted=prefs.muteVideos):
+        video(poster=thumb, controls="", muted=prefs.muteVideos, preload=prefs.videoPreload):
           source(src=source, `type`="video/mp4")
       of m3u8, vmap:
         video(poster=thumb, data-url=source, data-autoload="false", muted=prefs.muteVideos)
@@ -161,7 +161,8 @@ proc renderGifAttachment(gif: Gif; prefs: Prefs; path=""): VNode =
       video(class="gif", poster=thumb, autoplay="", muted="", loop=""):
         source(src=getPicUrl(gif.url, prefs.proxyVideos), `type`="video/mp4")
     else:
-      video(class="gif", poster=thumb, controls="", muted="", loop=""):
+      video(class="gif", poster=thumb, controls="", muted="", loop="",
+            preload=prefs.videoPreload):
         source(src=getPicUrl(gif.url, prefs.proxyVideos), `type`="video/mp4")
     if gif.altText.len > 0:
       renderAltText(gif.altText)
