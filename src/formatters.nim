@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-import strutils, strformat, times, uri, tables, xmltree, htmlparser, htmlgen, math
+import strutils, strformat, times, uri, tables, xmltree, pkg/htmlparser, htmlgen, math
 import std/[enumerate, re]
 import types, utils, query
 

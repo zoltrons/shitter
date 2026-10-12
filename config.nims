@@ -2,6 +2,9 @@
 --define:useStdLib
 --threads:off
 
+# compile C files in parallel (0 = all CPUs)
+--parallelBuild:0
+
 # workaround httpbeast file upload bug
 --assertions:off
 

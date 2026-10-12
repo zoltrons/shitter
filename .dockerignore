@@ -1,3 +1,5 @@
+.github
+*.patch
 *.png
 *.md
 LICENSE
