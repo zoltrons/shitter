@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(err => {
         console.warn("Something went wrong.", err);
-        if (failed > 3) { loadMore.children[0].text = "Error"; return; }
+        if (failed > 10) { loadMore.children[0].text = "Error"; return; }
         loading = false;
         handleScroll((failed || 0) + 1);
       });
