@@ -24,7 +24,10 @@
         "cloudflare": true
     },
     {
-        "url": "https://nitter.tiekoetter.com",
+        "url": "https://nitter.tiekoetter.com"
+    },
+    {
+        "url": "https://xnologin.com"
     },
     {
         "url": "https://nitter.jaydenha.uk"
