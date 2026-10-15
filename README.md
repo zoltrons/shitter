@@ -25,6 +25,10 @@ The wiki contains:
 - Guide: [How to obtain session tokens](https://codeberg.org/shitter/shitter/wiki/Creating-session-tokens)
 - Guide: [Using Nitter embeds](https://codeberg.org/shitter/shitter/wiki/Embeds-guide)
 
+## Contributing
+
+This repository does not accept Pull Requests, but contributions are welcome in the form of **Patch files**, which can be submitted on an issue and are much more convenient to merge and work with.
+
 
 ## Why?
 
