@@ -8,10 +8,6 @@
         "cloudflare": true
     },
     {
-        "url": "https://nitter.miningtcup.me",
-        "tor": "http://nitter.dog5267ah4m4f4677r33b2pzq667lwhsqupojioqz4rg6e2q74p3xtyd.onion"
-    },
-    {
         "url": "https://nitter.meowing.monster",
         "tor": "http://nitter.lesboswza6waq3itqo46rvf5a7dibxih32f2umwg6fpssxj66spmclyd.onion"
     },
@@ -28,6 +24,13 @@
     },
     {
         "url": "https://xnologin.com"
+    },
+    {
+        "url": "https://nitter.mie.foundation"
+    },
+    {
+        "url": "https://nitter.miningtcup.me",
+        "tor": "http://nitter.dog5267ah4m4f4677r33b2pzq667lwhsqupojioqz4rg6e2q74p3xtyd.onion"
     },
     {
         "url": "https://nitter.jaydenha.uk"
