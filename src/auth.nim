@@ -147,7 +147,7 @@ proc isLimited(session: Session; req: ApiReq): bool =
     return true
 
   let api = req.endpoint(session)
-  if session.limited and api != graphUserTweetsV2:
+  if session.limited and api != graphUserTweets:
     if (epochTime().int - session.limitedAt) > hourInSeconds:
       session.limited = false
       log "resetting limit: ", session.pretty

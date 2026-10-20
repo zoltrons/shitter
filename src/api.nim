@@ -30,7 +30,7 @@ proc mediaUrl(id, cursor: string): ApiReq =
   )
 
 proc userTweetsUrl(id: string; cursor: string): ApiReq =
-  return apiReq(graphUserTweetsV2, restIdVars % [id, cursor, "20"], userTweetsFieldToggles)
+  return apiReq(graphUserTweets, userTweetsVars % [id, cursor, "20"], userTweetsFieldToggles)
 
 proc userTweetsAndRepliesUrl(id: string; cursor: string): ApiReq =
   result = ApiReq(
