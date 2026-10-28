@@ -16,6 +16,10 @@
         "cloudflare": true
     },
     {
+        "url": "https://nitter.r4fo.com",
+        "cloudflare": true
+    },
+    {
         "url": "https://shi.meowing.de",
         "cloudflare": true
     },
