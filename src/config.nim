@@ -52,7 +52,11 @@ proc getConfig*(path: string): (Config, parseCfg.Config) =
     disableTid: cfg.get("Config", "disableTid", false),
     maxConcurrentReqs: cfg.get("Config", "maxConcurrentReqs", 2),
     maxRetries: cfg.get("Config", "maxRetries", 1),
-    retryDelayMs: cfg.get("Config", "retryDelayMs", 150)
+    retryDelayMs: cfg.get("Config", "retryDelayMs", 150),
+    guestAuth: cfg.get("Config", "guestAuth", false),
+    partialAuth: cfg.get("Config", "partialAuth", false),
+    guestBearerToken: cfg.get("Config", "guestBearerToken", ""),
+    guestPoolSize: cfg.get("Config", "guestPoolSize", 1)
   )
 
   return (conf, cfg)

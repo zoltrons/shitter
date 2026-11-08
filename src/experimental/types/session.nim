@@ -1,3 +1,5 @@
+import std/json
+
 type
   RawSession* = object
     kind*: string
@@ -7,3 +9,4 @@ type
     oauthTokenSecret*: string
     authToken*: string
     ct0*: string
+    suspended*: JsonNode

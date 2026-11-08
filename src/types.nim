@@ -30,11 +30,13 @@ type
   SessionKind* = enum
     oauth
     cookie
+    guest
 
   Session* = ref object
     id*: int64
     username*: string
     pending*: int
+    suspended*: bool
     limited*: bool
     limitedAt*: int
     apis*: Table[string, RateLimit]
@@ -45,6 +47,10 @@ type
     of cookie:
       authToken*: string
       ct0*: string
+    of guest:
+      guestToken*: string
+      guestCreated*: int
+      guestReqs*: int
 
   Error* = enum
     null = 0
@@ -443,6 +449,10 @@ type
     maxConcurrentReqs*: int
     maxRetries*: int
     retryDelayMs*: int
+    guestAuth*: bool
+    partialAuth*: bool
+    guestBearerToken*: string
+    guestPoolSize*: int
 
     rssCacheTime*: int
     listCacheTime*: int

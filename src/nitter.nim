@@ -21,7 +21,14 @@ let
 
   sessionsPath = getEnv("NITTER_SESSIONS_FILE", "./sessions.jsonl")
 
-initSessionPool(cfg, sessionsPath)
+setGuestBearerToken(getEnv("NITTER_GUEST_BEARER_TOKEN", cfg.guestBearerToken))
+
+if cfg.guestAuth:
+  setGuestAuth(true, cfg.guestPoolSize)
+else:
+  initSessionPool(cfg, sessionsPath)
+  if cfg.partialAuth:
+    setPartialAuth(true, cfg.guestPoolSize)
 
 if not cfg.enableDebug:
   # Silence Jester's query warning

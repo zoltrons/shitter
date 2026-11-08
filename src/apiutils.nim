@@ -31,6 +31,10 @@ var
   apiProxy: string
   maxRetries: int
   retryDelayMs: int
+  useGuestAuth: bool
+  usePartialAuth: bool
+
+const guestActivateUrl = "https://api.x.com/1.1/guest/activate.json"
 
 proc setDisableTid*(disable: bool) =
   disableTid = disable
@@ -40,6 +44,37 @@ proc setMaxRetries*(n: int) =
 
 proc setRetryDelayMs*(ms: int) =
   retryDelayMs = ms
+
+proc setGuestBearerToken*(token: string) =
+  guestBearerToken = token.strip()
+
+proc setGuestAuth*(enabled: bool; poolSize = 1) =
+  if enabled and guestBearerToken.len == 0:
+    echo "[sessions] ERROR: guestAuth is enabled but guestBearerToken is empty; set it in nitter.conf or via NITTER_GUEST_BEARER_TOKEN. Guest mode requires a valid bearer token."
+    quit 1
+  useGuestAuth = enabled
+  if enabled:
+    setGuestPoolSize(poolSize)
+
+proc isGuestAuth*(): bool =
+  useGuestAuth
+
+proc setPartialAuth*(enabled: bool; poolSize = 1) =
+  if enabled and guestBearerToken.len == 0:
+    echo "[sessions] ERROR: partialAuth is enabled but guestBearerToken is empty; set it in nitter.conf or via NITTER_GUEST_BEARER_TOKEN. Partial mode requires a valid bearer token."
+    quit 1
+  usePartialAuth = enabled
+  if enabled:
+    setGuestPoolSize(poolSize)
+
+proc isPartialAuth*(): bool =
+  usePartialAuth
+
+proc needsGuestAuth(req: ApiReq): bool =
+  if useGuestAuth:
+    return true
+  usePartialAuth and (req.cookie.endpoint == graphSearchTimeline or
+                      req.oauth.endpoint == graphSearchTimeline)
 
 proc setApiProxy*(url: string) =
   apiProxy = ""
@@ -51,10 +86,10 @@ proc setApiProxy*(url: string) =
 proc toUrl*(req: ApiReq; sessionKind: SessionKind): Uri =
   let url = case sessionKind
     of oauth:  req.oauth
-    of cookie: req.cookie
+    of cookie, guest: req.cookie
   let base = case sessionKind
     of oauth:  "https://api.x.com"
-    of cookie: "https://x.com/i/api"
+    of cookie, guest: "https://x.com/i/api"
   let prefix = if url.endpoint.startsWith("1.1/"): "" else: "graphql/"
   parseUri(base) / (prefix & url.endpoint) ? url.params
 
@@ -94,6 +129,19 @@ proc genHeaders*(session: Session, url: Uri, skipTid: bool): Future[HttpHeaders]
   case session.kind
   of SessionKind.oauth:
     result["authorization"] = getOauthHeader($url, session.oauthToken, session.oauthSecret)
+  of SessionKind.guest:
+    result["x-guest-token"] = session.guestToken
+    result["referer"] = "https://x.com/"
+    result["sec-ch-ua"] = """"Google Chrome";v="142", "Chromium";v="142", "Not A(Brand";v="24""""
+    result["sec-ch-ua-mobile"] = "?0"
+    result["sec-ch-ua-platform"] = "Windows"
+    result["sec-fetch-dest"] = "empty"
+    result["sec-fetch-mode"] = "cors"
+    result["sec-fetch-site"] = "same-origin"
+    result["authorization"] = guestBearerToken
+    if not (disableTid or skipTid or "/1.1/" in url.path):
+      result["x-client-transaction-id"] = await genTid(url.path)
+    registerGuestRequest(session)
   of SessionKind.cookie:
     result["x-twitter-auth-type"] = "OAuth2Session"
     result["x-csrf-token"] = session.ct0
@@ -111,13 +159,81 @@ proc genHeaders*(session: Session, url: Uri, skipTid: bool): Future[HttpHeaders]
       result["authorization"] = bearerToken
       result["x-client-transaction-id"] = await genTid(url.path)
 
+proc activateGuestToken(): Future[Session] {.async.} =
+  let client = newAsyncHttpClient()
+  client.headers = newHttpHeaders({
+    "authorization": guestBearerToken,
+    "content-type": "application/x-www-form-urlencoded",
+    "accept": "*/*",
+    "accept-language": "en-US,en;q=0.9",
+    "origin": "https://x.com",
+    "referer": "https://x.com/",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "sec-ch-ua": """"Google Chrome";v="142", "Chromium";v="142", "Not A(Brand";v="24"""",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "Windows",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "x-twitter-active-user": "yes",
+    "x-twitter-client-language": "en"
+  })
+  try:
+    let
+      resp = await client.post(guestActivateUrl)
+      body = await resp.body
+
+    if resp.status != $Http200:
+      echo "[sessions] guest activation failed, status: ", resp.status, ", body: ", body
+      raise rateLimitError()
+
+    let js = parseJson(body)
+    if not js.hasKey("guest_token"):
+      echo "[sessions] guest activation returned no token, body: ", body
+      raise rateLimitError()
+    let token = js["guest_token"].getStr
+
+    if token.len == 0:
+      echo "[sessions] guest activation returned an empty token, body: ", body
+      raise rateLimitError()
+
+    echo "[sessions] activated new guest token: ", token
+    result = Session(kind: guest, guestToken: token, guestCreated: epochTime().int, guestReqs: 0)
+  finally:
+    client.close()
+
+proc getReadyGuestSession(req: ApiReq): Future[Session] {.async.} =
+  result = getGuestSession(req)
+  if result.isNil:
+    var stale = findStaleGuestSession(req)
+    if not stale.isNil:
+      invalidate(stale)
+
+    if guestPoolFull():
+      await sleepAsync(200)
+      raise rateLimitError()
+    else:
+      let fresh = await activateGuestToken()
+      addGuestSession(fresh)
+      inc fresh.pending
+      result = fresh
+
 proc getAndValidateSession*(req: ApiReq): Future[Session] {.async.} =
+  if needsGuestAuth(req):
+    result = await getReadyGuestSession(req)
+    if result.isNil or result.guestToken.len == 0:
+      echo "[sessions] Empty guest token, session: ", result.pretty
+      raise rateLimitError()
+    return
+
   result = await getSession(req)
   case result.kind
   of SessionKind.oauth:
     if result.oauthToken.len == 0:
       echo "[sessions] Empty oauth token, session: ", result.pretty
       raise rateLimitError()
+  of SessionKind.guest:
+    discard
   of SessionKind.cookie:
     if result.authToken.len == 0 or result.ct0.len == 0:
       echo "[sessions] Empty cookie credentials, session: ", result.pretty
@@ -131,7 +247,7 @@ template fetchImpl(result, fetchBody) {.dirty.} =
     var resp: AsyncResponse
     let skipTid = case session.kind
       of oauth: req.oauth.skipTid
-      of cookie: req.cookie.skipTid
+      of cookie, guest: req.cookie.skipTid
     let headers = await genHeaders(session, url, skipTid)
 
     pool.use(headers):
@@ -179,6 +295,8 @@ template fetchImpl(result, fetchBody) {.dirty.} =
           elif errors in {rateLimited}:
             # rate limit hit, resets after 24 hours
             setLimited(session, req)
+            if session.kind == guest:
+              invalidate(session)
             raise rateLimitError()
       elif result.startsWith("429 Too Many Requests"):
         echo "[sessions] 429 error, API: ", url.path, ", session: ", session.pretty
