@@ -9,6 +9,7 @@ import jester
 
 const
   doctype = "<!DOCTYPE html>\n"
+  siteLogo = staticRead("../../public/logo-color-inline.svg")
 
 proc toTheme(theme: string): string =
   theme.toLowerAscii.replace(" ", "_")
@@ -25,7 +26,7 @@ proc renderNavbar(cfg: Config; req: Request; rss, canonical: string): VNode =
         a(class="site-name", href="/"): text cfg.title
 
       if req.path == "/search" or req.path == "/":
-        a(href="/"): img(class="site-logo", src="/logo.png", alt="Logo")
+        a(href="/"): verbatim siteLogo
       else:
         tdiv(class="search-bar-nav"):
           form(`method`="get", action="/search", autocomplete="off"):
