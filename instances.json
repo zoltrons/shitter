@@ -12,7 +12,9 @@
         "cloudflare": true
     },
     {
-        "url": "https://nitter.catsarch.com"
+        "url": "https://nitter.catsarch.com",
+        "tor": "http://nitter.catsarchywsyuss6jdxlypsw5dc7owd5u5tr6bujxb7o6xw2hipqehyd.onion",
+        "i2p": "http://va7j3ssqh7e26twc2sflrwjrn7uxryuenatcmfp7njnr5hmvtuiq.b32.i2p"
     },
     {
         "url": "https://nitter.mizuki.st",
