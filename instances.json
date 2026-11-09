@@ -8,12 +8,15 @@
         "cloudflare": true
     },
     {
-        "url": "https://nitter.meowing.monster",
-        "tor": "http://nitter.lesboswza6waq3itqo46rvf5a7dibxih32f2umwg6fpssxj66spmclyd.onion"
-    },
-    {
         "url": "https://nitter.netbub.com",
         "cloudflare": true
+    },
+    {
+        "url": "https://nitter.catsarch.com"
+    },
+    {
+        "url": "https://nitter.mizuki.st",
+        "tor": "http://nitter.lesboswza6waq3itqo46rvf5a7dibxih32f2umwg6fpssxj66spmclyd.onion"
     },
     {
         "url": "https://nitter.r4fo.com",
