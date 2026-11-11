@@ -19,7 +19,7 @@ template `@`(param: string): untyped =
 
 proc initQuery*(pms: Table[string, string]; name=""): Query =
   result = Query(
-    kind: parseEnum[QueryKind](@"f", tweets),
+    kind: parseEnum[QueryKind](@"f", users),
     view: @"view",
     text: @"q",
     filters: validFilters.filterIt("f-" & it in pms),

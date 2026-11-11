@@ -30,9 +30,8 @@ proc renderNavbar(cfg: Config; req: Request; rss, canonical: string): VNode =
       else:
         tdiv(class="search-bar-nav"):
           form(`method`="get", action="/search", autocomplete="off"):
-            hiddenField("f", "tweets")
             input(`type`="search", name="q", autofocus=false,
-                  placeholder="Search [/]", dir="auto")
+                  placeholder="Search or paste link [/]", dir="auto")
             button(`type`="submit")
 
       tdiv(class="nav-item right"):

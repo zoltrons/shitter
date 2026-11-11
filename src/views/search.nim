@@ -22,9 +22,8 @@ proc renderSearch*(): VNode =
   buildHtml(tdiv(class="panel-container")):
     tdiv(class="search-bar"):
       form(`method`="get", action="/search", autocomplete="off"):
-        hiddenField("f", "tweets")
         input(`type`="text", name="q", autofocus="",
-              placeholder="Search...", dir="auto")
+              placeholder="Search or paste link...", dir="auto")
         button(`type`="submit"): icon "search"
 
 proc renderProfileTabs*(query: Query; username: string): VNode =

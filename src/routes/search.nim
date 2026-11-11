@@ -18,6 +18,14 @@ proc createSearchRouter*(cfg: Config) =
       if q.len > 500:
         resp Http400, showError("Search input too long.", cfg)
 
+      let destination = parseTwitterLink(q)
+      if destination.len > 0:
+        redirect(destination)
+
+      let profile = parseUserMention(q)
+      if profile.len > 0:
+        redirect(profile)
+
       let
         prefs = requestPrefs()
         title = "Search" & (if q.len > 0: " (" & q & ")" else: "")

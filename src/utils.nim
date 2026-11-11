@@ -113,6 +113,69 @@ proc isTwitterUrl*(uri: Uri): bool =
 proc isTwitterUrl*(url: string): bool =
   isTwitterUrl(parseUri(url))
 
+proc isProfileName*(name: string): bool =
+  name.len in 1..15 and name.allCharsInSet(Letters + Digits + {'_'})
+
+proc isStatusId*(id: string): bool =
+  id.len > 0 and id.allCharsInSet(Digits)
+
+const xDomains = [
+  "x.com", "www.x.com", "mobile.x.com",
+  "twitter.com", "www.twitter.com", "mobile.twitter.com"
+]
+
+const twitterAppPages = [
+  "home", "explore", "search", "notifications", "messages", "settings",
+  "compose", "intent", "share", "login", "logout", "signup", "tos", "privacy"
+]
+
+proc parseUserMention*(input: string): string =
+  let text = input.strip
+  if text.len < 2 or text[0] != '@' or text.anyIt(it.isSpaceAscii):
+    return
+  let name = text[1..^1]
+  if not name.isProfileName:
+    return
+  "/" & name
+
+proc parseTwitterLink*(input: string): string =
+  let text = input.strip
+  if text.len == 0 or text.anyIt(it.isSpaceAscii):
+    return
+
+  let url = try:
+      parseUri(if "://" in text: text else: https & text)
+    except ValueError:
+      return
+
+  if url.scheme.toLowerAscii notin ["http", "https"] or
+     url.hostname.toLowerAscii notin xDomains or
+     url.username.len > 0 or url.password.len > 0 or url.port.len > 0:
+    return
+
+  let parts = url.path.strip(chars={'/'}).split('/')
+  if parts.len == 0:
+    return
+
+  let name = parts[0]
+  if name.toLowerAscii == "i":
+    return "/" & parts.join("/")
+
+  if not name.isProfileName:
+    return
+
+  if parts.len == 1:
+    if name.toLowerAscii in twitterAppPages:
+      return
+    return "/" & name
+
+  if parts.len >= 3 and parts[1] in ["status", "statuses"] and
+     parts[2].isStatusId:
+    if parts.len == 3 or
+       (parts.len == 5 and parts[3] in ["photo", "video"] and
+        parts[4].isStatusId):
+      return "/" & name & "/status/" & parts[2]
+
 proc validateNumber*(value: string): string =
   if value.anyIt(not it.isDigit):
     return ""
