@@ -11,7 +11,7 @@ const
 var
   sessionPool: seq[Session]
   guestPool: seq[Session]
-  guestPoolSize = 1
+  guestPoolSize = 0
   enableLogging = false
   # max requests at a time per session to avoid race conditions
   maxConcurrentReqs = 2
@@ -57,7 +57,7 @@ proc needsRotation*(session: Session): bool =
   session.guestReqs >= guestMaxReqs or
     (epochTime().int - session.guestCreated) >= guestMaxAgeSeconds
 
-proc getSessionPoolHealth*(): JsonNode =
+proc getSessionPoolHealth*(includeGuest = true): JsonNode =
   let now = epochTime().int
 
   var
@@ -103,21 +103,22 @@ proc getSessionPoolHealth*(): JsonNode =
       reqsPerApi.mgetOrPut($api, 0).inc reqs
       totalReqs.inc reqs
 
-  guestTotal = guestPool.len
-  for session in guestPool:
-    if session.limited: inc guestLimited
-    if session.needsRotation: inc guestNeedsRotation
+  if includeGuest:
+    guestTotal = guestPool.len
+    for session in guestPool:
+      if session.limited: inc guestLimited
+      if session.needsRotation: inc guestNeedsRotation
 
-    for api in session.apis.keys:
-      let
-        apiStatus = session.apis[api]
-        reqs = apiStatus.limit - apiStatus.remaining
+      for api in session.apis.keys:
+        let
+          apiStatus = session.apis[api]
+          reqs = apiStatus.limit - apiStatus.remaining
 
-      if apiStatus.reset < now:
-        continue
+        if apiStatus.reset < now:
+          continue
 
-      reqsPerApi.mgetOrPut("guest:" & $api, 0).inc reqs
-      totalReqs.inc reqs
+        reqsPerApi.mgetOrPut("guest:" & $api, 0).inc reqs
+        totalReqs.inc reqs
 
   if sessionPool.len > 0:
     average = average div sessionPool.len
@@ -125,26 +126,29 @@ proc getSessionPoolHealth*(): JsonNode =
     oldest = 0
     average = 0
 
-  return %*{
-    "sessions": %*{
-      "total": sessionPool.len,
-      "limited": limited.card,
-      "oauth": %*{"total": oauthTotal, "limited": oauthLimited},
-      "cookie": %*{"total": cookieTotal, "limited": cookieLimited},
-      "guest": %*{
-        "total": guestTotal,
-        "limited": guestLimited,
-        "pendingRotation": guestNeedsRotation,
-        "poolSize": guestPoolSize
-      },
-      "oldest": $fromUnix(oldest),
-      "newest": $fromUnix(newest),
-      "average": $fromUnix(average)
-    },
-    "requests": %*{
-      "total": totalReqs,
-      "apis": reqsPerApi
+  var sessions = %*{
+    "total": sessionPool.len,
+    "limited": limited.card,
+    "oauth": %*{"total": oauthTotal, "limited": oauthLimited},
+    "cookie": %*{"total": cookieTotal, "limited": cookieLimited},
+    "oldest": $fromUnix(oldest),
+    "newest": $fromUnix(newest),
+    "average": $fromUnix(average)
+  }
+
+  if includeGuest:
+    sessions["guest"] = %*{
+      "total": guestTotal,
+      "limited": guestLimited,
+      "pendingRotation": guestNeedsRotation,
+      "poolSize": guestPoolSize
     }
+
+  result = newJObject()
+  result["sessions"] = sessions
+  result["requests"] = %*{
+    "total": totalReqs,
+    "apis": reqsPerApi
   }
 
 proc getSessionPoolDebug*(): JsonNode =
@@ -220,8 +224,8 @@ proc isLimited(session: Session; req: ApiReq): bool =
 
   let api = req.endpoint(session)
 
-  if session.suspended and api == graphSearchTimeline:
-    return true
+  #if session.suspended and api == graphSearchTimeline:
+  #  return true
 
   if session.limited and api != graphUserTweets:
     if (epochTime().int - session.limitedAt) > hourInSeconds:
@@ -239,6 +243,18 @@ proc isLimited(session: Session; req: ApiReq): bool =
 
 proc isReady(session: Session; req: ApiReq): bool =
   not (session.isNil or session.pending > maxConcurrentReqs or session.isLimited(req))
+
+proc hasAnySession*(): bool =
+  sessionPool.len > 0
+
+proc hasUsableSearchSession*(): bool =
+  let req = ApiReq(
+    cookie: ApiUrl(endpoint: graphSearchTimeline),
+    oauth: ApiUrl(endpoint: graphSearchTimeline)
+  )
+  for session in sessionPool:
+    if not session.suspended and session.isReady(req):
+      return true
 
 proc isGuestReady(session: Session; req: ApiReq): bool =
   not (session.isNil or session.pending > maxConcurrentReqs or

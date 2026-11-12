@@ -4,6 +4,8 @@ import asyncdispatch, tables, times, hashes, uri
 import jester
 
 import router_utils, timeline
+import ../multiuser
+import ../apiutils
 import ../query
 
 include "../views/rss.nimf"
@@ -27,7 +29,7 @@ proc timelineRss*(req: Request; cfg: Config; query: Query; prefs: Prefs): Future
   else:
     var q = query
     q.fromUser = names
-    profile.tweets = await getGraphTweetSearch(q, after)
+    profile.tweets = await getMultiUserTimeline(q, names, timelineKindFor(query), after)
     # this is kinda dumb
     profile.user = User(
       username: name,
@@ -65,9 +67,14 @@ proc createRssRouter*(cfg: Config) =
       if @"q".len > 200:
         resp Http400, showError("Search input too long.", cfg)
 
-      let
-        prefs = requestPrefs()
-        query = initQuery(params(request))
+      let prefs = requestPrefs()
+      var query = initQuery(params(request))
+      if @"f".len == 0 and not guestTokensInUse():
+        query.kind = tweets
+      if query.kind in {users, lists} and parseFromUsers(query.text).len > 0:
+        query.kind = tweets
+      if @"f".len == 0 and query.kind == users and hasSymbolPrefix(query.text):
+        query.kind = tweets
       if query.kind notin {QueryKind.tweets, QueryKind.top, QueryKind.media}:
         resp Http400, showError("Only Tweet searches are allowed for RSS feeds.", cfg)
 
@@ -79,7 +86,8 @@ proc createRssRouter*(cfg: Config) =
       if rss.cursor.len > 0:
         respRss(rss, "Search")
 
-      let tweets = await getGraphTweetSearch(query, cursor)
+      let tweets = await getTimelineTweets(query, cursor,
+                                           allowBareUsername = @"f".len == 0)
       rss.cursor = tweets.bottom
       rss.feed = renderSearchRss(tweets.content, query.text, genQueryUrl(query), cfg, prefs)
 

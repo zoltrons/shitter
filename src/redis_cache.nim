@@ -7,11 +7,13 @@ import types, api
 const
   redisNil = "\0\0"
   baseCacheTime = 60 * 60
+  emptyUserTweetsCacheTime = 60
 
 var
   pool: RedisPool
   rssCacheTime: int
   listCacheTime*: int
+  userTweetsCacheTime: int
 
 template dawait(future) =
   discard await future
@@ -28,6 +30,7 @@ proc fromFlatty*(s: string, i: var int, x: var DateTime) =
 proc setCacheTimes*(cfg: Config) =
   rssCacheTime = cfg.rssCacheTime * 60
   listCacheTime = cfg.listCacheTime * 60
+  userTweetsCacheTime = cfg.userTweetsCacheTime * 60
 
 proc migrate*(key, match: string) {.async.} =
   pool.withAcquire(r):
@@ -133,6 +136,24 @@ proc getCachedUser*(username: string; fetch=true): Future[User] {.async.} =
   elif fetch:
     result = await getGraphUser(username)
     await cache(result)
+
+proc userTweetsKey(userId: string; kind: TimelineKind; cursor: string): string =
+  "ut:" & userId & ":" & $ord(kind) & ":" & $hash(cursor)
+
+proc getCachedUserTweets*(userId: string; kind: TimelineKind;
+                          cursor=""): Future[Profile] {.async.} =
+  if userId.len == 0:
+    return
+  let key = userTweetsKey(userId, kind, cursor)
+  let data = await get(key)
+  if data != redisNil:
+    data.deserialize(Profile)
+    return
+
+  result = await getGraphUserTweets(userId, kind, cursor)
+  let empty = result.tweets.content.len == 0 and result.tweets.bottom.len == 0
+  let ttl = if empty: emptyUserTweetsCacheTime else: userTweetsCacheTime
+  await setEx(key, ttl, compress(toFlatty(result)))
 
 proc getCachedUsername*(userId: string): Future[string] {.async.} =
   let

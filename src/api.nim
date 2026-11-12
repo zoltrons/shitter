@@ -287,20 +287,38 @@ proc getGraphTweetSearch*(query: Query; after=""): Future[Timeline] {.async.} =
     of media: (if query.fromUser.len == 0: "Media" else: "Latest")
     else: "Latest"
 
-  var
-    variables = %*{
-      "rawQuery": q,
-      "count": 20,
-      "querySource": "typed_query",
-      "product": product,
-      "withGrokTranslatedBio":true,
-      "withQuickPromoteEligibilityTweetFields":false
-    }
+  let communitySearch = useCommunitySearchFallback()
+  let communityQuery = q.replace("include:nativeretweets", "").splitWhitespace().join(" ")
+  var variables =
+    if communitySearch:
+      %*{
+        "rawQuery": communityQuery,
+        "count": 20,
+        "querySource": "typed_query",
+        "withGrokTranslatedBio":true,
+        "withQuickPromoteEligibilityTweetFields":false,
+        "withBirdwatchNotes":true
+      }
+    else:
+      %*{
+        "rawQuery": q,
+        "count": 20,
+        "querySource": "typed_query",
+        "product": product,
+        "withGrokTranslatedBio":true,
+        "withQuickPromoteEligibilityTweetFields":false
+      }
 
   if after.len > 0 and maxId.len == 0:
     variables["cursor"] = % after
   let
-    url = apiReq(graphSearchTimeline, $variables)
+    endpoint =
+      if communitySearch:
+        if query.kind == top: graphGlobalCommunitiesPostSearchTimeline
+        else: graphGlobalCommunitiesPostSearchTimelineLatest
+      else:
+        graphSearchTimeline
+    url = apiReq(endpoint, $variables)
     js = await fetch(url)
   result = parseGraphSearch[Tweets](js, after)
   result.query = query

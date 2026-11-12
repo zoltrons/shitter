@@ -34,7 +34,9 @@ template getCursor*(req: Request): string =
             else: req.params.getOrDefault("max_position"), false)
 
 proc getNames*(name: string): seq[string] =
-  name.strip(chars={'/'}).split(",").filterIt(it.len > 0)
+  result = name.strip(chars={'/'}).split(",").filterIt(it.len > 0)
+  if result.len > maxMultiUsers:
+    result.setLen maxMultiUsers
 
 template applyUrlPrefs*() {.dirty.} =
   if @"prefs".len > 0:

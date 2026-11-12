@@ -28,6 +28,7 @@ proc getConfig*(path: string): (Config, parseCfg.Config) =
     # Cache
     listCacheTime: cfg.get("Cache", "listMinutes", 120),
     rssCacheTime: cfg.get("Cache", "rssMinutes", 10),
+    userTweetsCacheTime: cfg.get("Cache", "userTweetsMinutes", 5),
 
     redisHost: cfg.get("Cache", "redisHost", "localhost"),
     redisPort: cfg.get("Cache", "redisPort", 6379),

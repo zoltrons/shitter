@@ -3,13 +3,13 @@ import asyncdispatch, strutils, sequtils, uri, options, times
 import jester, karax/vdom
 
 import router_utils
-import ".."/[types, redis_cache, formatters, query, api]
+import ".."/[types, redis_cache, formatters, query, api, multiuser]
 import ../views/[general, profile, timeline, status, search, about_account]
 
 export vdom
 export uri, sequtils
 export router_utils
-export redis_cache, formatters, query, api
+export redis_cache, formatters, query, api, multiuser
 export profile, timeline, status, about_account
 
 proc tabRssEnabled*(cfg: Config; tab: string): bool =
@@ -72,11 +72,11 @@ proc fetchProfile*(after: string; query: Query; skipRail=false): Future[Profile]
 
   result =
     case query.kind
-    of posts: await getGraphUserTweets(userId, TimelineKind.tweets, after)
-    of replies: await getGraphUserTweets(userId, TimelineKind.replies, after)
-    of media: await getGraphUserTweets(userId, TimelineKind.media, after)
-    of QueryKind.articles: await getGraphUserTweets(userId, TimelineKind.articles, after)
-    else: Profile(tweets: await getGraphTweetSearch(query, after))
+    of posts: await getCachedUserTweets(userId, TimelineKind.tweets, after)
+    of replies: await getCachedUserTweets(userId, TimelineKind.replies, after)
+    of media: await getCachedUserTweets(userId, TimelineKind.media, after)
+    of QueryKind.articles: await getCachedUserTweets(userId, TimelineKind.articles, after)
+    else: Profile(tweets: await getTimelineTweets(query, after))
 
   result.user = await user
   result.photoRail = await rail
@@ -88,7 +88,8 @@ proc showTimeline*(request: Request; query: Query; cfg: Config; prefs: Prefs;
                    rss, after: string): Future[string] {.async.} =
   if query.fromUser.len != 1:
     let
-      timeline = await getGraphTweetSearch(query, after)
+      timeline = await getMultiUserTimeline(query, query.fromUser,
+                                            timelineKindFor(query), after)
       html = renderTweetSearch(timeline, prefs, getPath())
     return renderMain(html, request, cfg, prefs, "Multi", rss=rss)
 
@@ -199,7 +200,8 @@ proc createTimelineRouter*(cfg: Config) =
       # used for the infinite scroll feature
       if @"scroll".len > 0:
         if query.fromUser.len != 1:
-          var timeline = await getGraphTweetSearch(query, after)
+          var timeline = await getMultiUserTimeline(query, query.fromUser,
+                                                    timelineKindFor(query), after)
           if timeline.content.len == 0: 
             resp Http204
           timeline.beginning = true

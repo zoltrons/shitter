@@ -70,11 +70,23 @@ proc setPartialAuth*(enabled: bool; poolSize = 1) =
 proc isPartialAuth*(): bool =
   usePartialAuth
 
+proc guestTokensInUse*(): bool =
+  useGuestAuth or usePartialAuth
+
+proc searchAvailable*(): bool =
+  guestTokensInUse() or hasAnySession()
+
+proc useCommunitySearchFallback*(): bool =
+  guestTokensInUse() or not hasUsableSearchSession()
+
+proc listsSearchAvailable*(): bool =
+  guestTokensInUse() or hasUsableSearchSession()
+
 proc needsGuestAuth(req: ApiReq): bool =
   if useGuestAuth:
     return true
-  usePartialAuth and (req.cookie.endpoint == graphSearchTimeline or
-                      req.oauth.endpoint == graphSearchTimeline)
+  usePartialAuth and (req.cookie.endpoint in [graphSearchTimeline, graphGlobalCommunitiesPostSearchTimeline, graphGlobalCommunitiesPostSearchTimelineLatest] or
+                      req.oauth.endpoint in [graphSearchTimeline, graphGlobalCommunitiesPostSearchTimeline, graphGlobalCommunitiesPostSearchTimelineLatest])
 
 proc setApiProxy*(url: string) =
   apiProxy = ""

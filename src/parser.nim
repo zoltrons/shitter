@@ -951,8 +951,14 @@ proc parseGraphSearch*[T: User | Tweets | ListSearchResult](js: JsonNode; after=
   result = Result[T](beginning: after.len == 0)
 
   let instructions = select(
-    js{"data", "search", "timeline_response", "timeline", "instructions"},
-    js{"data", "search_by_raw_query", "search_timeline", "timeline", "instructions"}
+    select(
+      js{"data", "search", "timeline_response", "timeline", "instructions"},
+      js{"data", "search_by_raw_query", "search_timeline", "timeline", "instructions"}
+    ),
+    select(
+      js{"data", "search_by_raw_query", "communities_posts_search_page", "timeline", "instructions"},
+      js{"data", "search_by_raw_query", "communities_latest_posts_search_page", "timeline", "instructions"}
+    )
   )
   if instructions.len == 0:
     return

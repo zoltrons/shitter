@@ -10,6 +10,7 @@ var
 const
   https* = "https://"
   twimg* = "pbs.twimg.com/"
+  maxMultiUsers* = 20
   nitterParams* = ["name", "tab", "id", "list", "referer", "scroll", "prefs"]
   twimgDomains* = @[
     "twimg.com",

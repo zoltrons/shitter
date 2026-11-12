@@ -24,6 +24,8 @@ const
   graphTweetResult* = "xYOrBQoTlfKJJPsX76MZEw/TweetResultByIdQuery"
   graphTweetEditHistory* = "1izbuOcH_QpuMcyCxOXkAg/TweetEditHistory"
   graphSearchTimeline* = "hyPfJYJ_XAtDYoslQc-Rgg/SearchTimeline"
+  graphGlobalCommunitiesPostSearchTimeline* = "Tm8OZBTJ5F_dQNdP1KEoug/GlobalCommunitiesPostSearchTimeline"
+  graphGlobalCommunitiesPostSearchTimelineLatest* = "60lEf-uOZXGMD_KQoO1WSw/GlobalCommunitiesLatestPostSearchTimeline"
 
   graphListById* = "niz0TtOxL2zIcbq6_NQiNw/ListByRestId"
   graphListBySlug* = "RqkWNDQpOntlxNtJa4RIoQ/ListBySlug"

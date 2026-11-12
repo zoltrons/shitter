@@ -4,7 +4,7 @@ import strutils, uri
 import jester
 
 import router_utils
-import ".."/[query, types, api, formatters]
+import ".."/[query, types, api, apiutils, formatters, redis_cache, multiuser]
 import ../views/[general, search]
 
 include "../views/opensearch.nimf"
@@ -31,12 +31,34 @@ proc createSearchRouter*(cfg: Config) =
         title = "Search" & (if q.len > 0: " (" & q & ")" else: "")
 
       var query = initQuery(params(request))
+      let guestTokens = guestTokensInUse()
+      if @"f".len == 0:
+        query.kind = if guestTokens: users else: tweets
       # x.com URL compat: f=user and f=list map to our kind names
       # (f=live already falls back to tweets/Latest; f=media matches natively)
       if @"f" == "user":
         query.kind = users
       elif @"f" == "list":
         query.kind = lists
+
+      if query.kind in {users, lists} and parseFromUsers(q).len > 0:
+        query.kind = tweets
+
+      if @"f".len == 0 and query.kind == users and hasSymbolPrefix(q):
+        query.kind = tweets
+
+      # bare text is a username only for the default search, not explicit tabs
+      let allowBareUsername = @"f".len == 0
+      if allowBareUsername and query.kind in {tweets, top}:
+        let name = bareUsername(query)
+        if name.len > 0 and isProfileName(name):
+          let userId = await getUserId(name)
+          if userId notin ["", "suspended"]:
+            redirect("/" & name)
+          elif not searchAvailable():
+            let tweets = Timeline(beginning: true, query: query)
+            resp renderMain(renderTweetSearch(tweets, prefs, getPath()),
+                            request, cfg, prefs, title)
 
       # media searches support view modes, defaulting like /user/media
       if query.kind == QueryKind.media and
@@ -45,22 +67,31 @@ proc createSearchRouter*(cfg: Config) =
 
       case query.kind
       of users:
-        if "," in q:
-          redirect("/" & q)
-        var users: Result[User]
-        try:
-          users = await getGraphUserSearch(query, getCursor())
-        except InternalError:
-          users = Result[User](beginning: true, query: query)
-        resp renderMain(renderUserSearch(users, prefs), request, cfg, prefs, title)
+        if not guestTokens:
+          let users = Result[User](beginning: true, query: query)
+          resp renderMain(renderUserSearch(users, prefs), request, cfg, prefs, title)
+        else:
+          if "," in q:
+            redirect("/" & q)
+          var users: Result[User]
+          try:
+            users = await getGraphUserSearch(query, getCursor())
+          except InternalError:
+            users = Result[User](beginning: true, query: query)
+          resp renderMain(renderUserSearch(users, prefs), request, cfg, prefs, title)
       of tweets, top, QueryKind.media:
         let
-          tweets = await getGraphTweetSearch(query, getCursor())
+          tweets = await getTimelineTweets(query, getCursor(),
+                                           allowBareUsername)
           rss = if cfg.enableRSSSearch: "/search/rss?" & genQueryUrl(query) else: ""
         resp renderMain(renderTweetSearch(tweets, prefs, getPath()),
                         request, cfg, prefs, title, rss=rss)
       of lists:
-        let listResults = await getGraphListSearch(query, getCursor())
+        var listResults: Result[ListSearchResult]
+        if listsSearchAvailable():
+          listResults = await getGraphListSearch(query, getCursor())
+        else:
+          listResults = Result[ListSearchResult](beginning: true, query: query)
         resp renderMain(renderListSearch(listResults, prefs, getPath()),
                         request, cfg, prefs, title)
       else:
