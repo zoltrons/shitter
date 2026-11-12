@@ -4,10 +4,6 @@
         "cloudflare": true
     },
     {
-        "url": "https://nitter.pp.ua",
-        "cloudflare": true
-    },
-    {
         "url": "https://nitter.netbub.com",
         "cloudflare": true
     },
@@ -50,9 +46,6 @@
     {
         "url": "https://nitter.xitter.cc",
         "cloudflare": true
-    },
-    {
-        "url": "https://tw.eir-nya.gay"
     },
     {
         "url": "https://xcopy.uk",
