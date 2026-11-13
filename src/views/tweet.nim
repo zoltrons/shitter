@@ -121,17 +121,18 @@ proc renderVideoAttachment(videoData: Video; prefs: Prefs; path=""; bigThumb=fal
         vidUrl = vars.sortedByIt(it.resolution)[^1].url
         source = if prefs.proxyVideos and vidUrl.startsWith("http"):
                    getVidUrl(vidUrl, prefs.proxyVideos) else: vidUrl
-      case playbackType
-      of mp4:
-        video(poster=thumb, controls="", muted=prefs.muteVideos, preload=prefs.videoPreload):
-          source(src=source, `type`="video/mp4")
-      of m3u8, vmap:
-        video(poster=thumb, data-url=source, data-autoload="false", muted=prefs.muteVideos)
+      let isHls = playbackType in {m3u8, vmap}
+      if isHls or prefs.disableVideoPreload:
+        video(poster=thumb, data-url=source, data-autoload="false",
+              data-type=(if isHls: "hls" else: "mp4"), muted=prefs.muteVideos)
         verbatim "<div class=\"video-overlay\" onclick=\"playVideo(this)\">"
         tdiv(class="overlay-circle"): span(class="overlay-triangle")
         if videoData.durationMs > 0:
           tdiv(class="overlay-duration"): text getDuration(videoData)
         verbatim "</div>"
+      else:
+        video(poster=thumb, controls="", muted=prefs.muteVideos, preload=prefs.videoPreload):
+          source(src=source, `type`="video/mp4")
     if videoData.available:
       let dlUrl = getVideoDownloadUrl(videoData, prefs)
       if dlUrl.len > 0:

@@ -80,9 +80,10 @@ proc renderHead*(prefs: Prefs; cfg: Config; req: Request; titleText=""; desc="";
       let oembedTitle = if titleText.len > 0: titleText else: "oEmbed"
       link(rel="alternate", type="application/json+oembed", href=oembed, title=oembedTitle)
 
-    if prefs.hlsPlayback:
-      script(src="/js/hls.min.js", `defer`="")
-      script(src="/js/hlsPlayback.js?v=1", `defer`="")
+    if prefs.mp4Playback or prefs.hlsPlayback:
+      if prefs.hlsPlayback:
+        script(src="/js/hls.min.js", `defer`="")
+      script(src="/js/hlsPlayback.js?v=2", `defer`="")
 
     script(src="/js/keybinds.js", `defer`="")
 
