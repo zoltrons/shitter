@@ -85,10 +85,10 @@ proc renderHead*(prefs: Prefs; cfg: Config; req: Request; titleText=""; desc="";
         script(src="/js/hls.min.js", `defer`="")
       script(src="/js/hlsPlayback.js?v=2", `defer`="")
 
-    script(src="/js/keybinds.js", `defer`="")
+    script(src="/js/keybinds.js?v=1", `defer`="")
 
     if prefs.infiniteScroll:
-      script(src="/js/infiniteScroll.js", `defer`="")
+      script(src="/js/infiniteScroll.js?v=2", `defer`="")
 
     title:
       if titleText.len > 0:

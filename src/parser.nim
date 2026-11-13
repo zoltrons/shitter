@@ -875,14 +875,23 @@ proc extractTweetsFromEntry*(e: JsonNode): seq[Tweet] =
   for tweet in extractTweetsFromModuleItems(e{"content", "items"}):
     result.add tweet
 
+proc getTimelineInstructions(js: JsonNode): JsonNode =
+  select(
+    js{"data", "list", "timeline_response", "timeline", "instructions"},
+    select(
+      js{"data", "user", "result", "timeline", "timeline", "instructions"},
+      js{"data", "user_result", "result", "timeline_response", "timeline", "instructions"}
+    )
+  )
+
+proc hasTimelineInstructions*(js: JsonNode): bool =
+  let instructions = getTimelineInstructions(js)
+  instructions.notNull and instructions.len > 0
+
 proc parseGraphTimeline*(js: JsonNode; after=""): Profile =
   result = Profile(tweets: Timeline(beginning: after.len == 0))
 
-  let instructions = ? select(
-    js{"data", "list", "timeline_response", "timeline", "instructions"},
-    js{"data", "user", "result", "timeline", "timeline", "instructions"},
-    js{"data", "user_result", "result", "timeline_response", "timeline", "instructions"}
-  )
+  let instructions = ? getTimelineInstructions(js)
   if instructions.len == 0:
     return
 

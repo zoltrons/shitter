@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 import asyncdispatch, httpclient, strutils, sequtils, sugar
 import packedjson
-import types, query, formatters, consts, apiutils, parser, utils
+import types, query, formatters, consts, apiutils, parser, utils, auth
 import experimental/parser
 
 # Helper to generate params object for GraphQL requests
@@ -120,6 +120,8 @@ proc getGraphUserTweets*(id: string; kind: TimelineKind; after=""): Future[Profi
       of TimelineKind.media: mediaUrl(id, cursor)
       of TimelineKind.articles: userArticlesUrl(id, cursor)
     js = await fetch(url)
+  if js.hasApiError or not js.hasTimelineInstructions:
+    raise rateLimitError()
   result = parseGraphTimeline(js, after)
 
 proc getGraphCommunity*(id: string): Future[Community] {.async.} =

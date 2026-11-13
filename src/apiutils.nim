@@ -70,6 +70,12 @@ proc setPartialAuth*(enabled: bool; poolSize = 1) =
 proc isPartialAuth*(): bool =
   usePartialAuth
 
+proc hasApiError*(js: JsonNode): bool =
+  if js.isNull:
+    return true
+  let error = js.getError
+  error != null and error notin errorsToSkip
+
 proc guestTokensInUse*(): bool =
   useGuestAuth or usePartialAuth
 

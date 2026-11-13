@@ -197,7 +197,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return r.text();
       })
       .then(responseText => {
-        if (responseText === null) {
+        if (responseText === null || responseText.trim() === "") {
           showNoMore(loadMore);
           loading = false;
           return;
