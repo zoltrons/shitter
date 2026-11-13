@@ -7,7 +7,7 @@ import types, api
 const
   redisNil = "\0\0"
   baseCacheTime = 60 * 60
-  emptyUserTweetsCacheTime = 60
+  emptyUserTweetsCacheTime = 5
 
 var
   pool: RedisPool
@@ -141,7 +141,7 @@ proc userTweetsKey(userId: string; kind: TimelineKind; cursor: string): string =
   "ut:" & userId & ":" & $ord(kind) & ":" & $hash(cursor)
 
 proc getCachedUserTweets*(userId: string; kind: TimelineKind;
-                          cursor=""): Future[Profile] {.async.} =
+                          cursor=""; cacheEmpty=false): Future[Profile] {.async.} =
   if userId.len == 0:
     return
   let key = userTweetsKey(userId, kind, cursor)
@@ -152,8 +152,9 @@ proc getCachedUserTweets*(userId: string; kind: TimelineKind;
 
   result = await getGraphUserTweets(userId, kind, cursor)
   let empty = result.tweets.content.len == 0 and result.tweets.bottom.len == 0
-  let ttl = if empty: emptyUserTweetsCacheTime else: userTweetsCacheTime
-  await setEx(key, ttl, compress(toFlatty(result)))
+  if not empty or cacheEmpty:
+    let ttl = if empty: emptyUserTweetsCacheTime else: userTweetsCacheTime
+    await setEx(key, ttl, compress(toFlatty(result)))
 
 proc getCachedUsername*(userId: string): Future[string] {.async.} =
   let

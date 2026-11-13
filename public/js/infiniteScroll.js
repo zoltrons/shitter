@@ -9,6 +9,15 @@ function getLoadMore(doc) {
   return doc.querySelector(".show-more:not(.timeline-item)");
 }
 
+function showNoMore(loadMore) {
+  loadMore.className = "timeline-footer";
+  loadMore.innerHTML = "";
+  const end = document.createElement("h2");
+  end.className = "timeline-end";
+  end.textContent = "No more items";
+  loadMore.appendChild(end);
+}
+
 function getHrefs(selector) {
   return new Set([...document.querySelectorAll(selector)].map(el => el.getAttribute("href")));
 }
@@ -183,10 +192,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch(url)
       .then(r => {
+        if (r.status === 204) return null;
         if (r.status > 299) throw new Error("error");
         return r.text();
       })
       .then(responseText => {
+        if (responseText === null) {
+          showNoMore(loadMore);
+          loading = false;
+          return;
+        }
         const doc = new DOMParser().parseFromString(responseText, "text/html");
         loadMore.remove();
 
@@ -214,9 +229,16 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(err => {
         console.warn("Something went wrong.", err);
-        if (failed > 10) { loadMore.children[0].text = "Error"; return; }
-        loading = false;
-        handleScroll((failed || 0) + 1);
+        if (failed > 10) {
+          loadMore.children[0].text = "Error";
+          loading = false;
+          return;
+        }
+        const delay = Math.min(2000, 250 * ((failed || 0) + 1));
+        setTimeout(() => {
+          loading = false;
+          handleScroll((failed || 0) + 1);
+        }, delay);
       });
   }
 

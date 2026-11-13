@@ -208,7 +208,7 @@ proc createTimelineRouter*(cfg: Config) =
           resp $renderTweetSearch(timeline, prefs, getPath())
         else:
           var profile = await fetchProfile(after, query, skipRail=true)
-          if profile.tweets.content.len == 0: resp Http404
+          if profile.tweets.content.len == 0: resp Http204
           profile.tweets.beginning = true
           resp $renderTimelineTweets(profile.tweets, prefs, getPath())
 

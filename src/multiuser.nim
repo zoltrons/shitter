@@ -128,7 +128,8 @@ proc getMultiUserTimeline*(query: Query; names: seq[string];
       counts = newSeq[int](states.len)
 
     for i, state in states:
-      let profile = await getCachedUserTweets(state.userId, kind, state.cursor)
+      let profile = await getCachedUserTweets(state.userId, kind, state.cursor,
+                                                cacheEmpty=true)
       let threads = profile.tweets.content
       for thread in threads:
         let id = itemId(thread)
